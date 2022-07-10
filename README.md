@@ -1,2 +1,3 @@
-# enchant-menu
- WIP enchantment menu mod for Minecraft Fabric
+# Enchant Menu
+
+WIP enchantment menu mod for Minecraft Fabric

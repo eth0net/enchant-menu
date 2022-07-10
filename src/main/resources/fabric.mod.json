@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "enchant-menu",
+  "version": "${version}",
+  "name": "Enchant Menu",
+  "description": "Adds a menu to select item enchantments, optionally allowing you to surpass the limits of the vanilla enchanting system.",
+  "authors": [
+    "eth0net"
+  ],
+  "contact": {
+    "homepage": "https://github.com/eth0net/enchant-menu/",
+    "issues": "https://github.com/eth0net/enchant-menu/issues/",
+    "sources": "https://github.com/eth0net/enchant-menu/"
+  },
+  "license": "MIT",
+  "icon": "assets/enchant-menu/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "com.github.eth0net.enchantmenu.EnchantMenu"
+      }
+    ]
+  },
+  "mixins": [
+    "enchantmenu.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "fabric": "*",
+    "fabric-language-kotlin": ">=1.8.1+kotlin.1.7.0",
+    "minecraft": "1.19.x",
+    "java": ">=17"
+  }
+}
