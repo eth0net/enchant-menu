@@ -1,16 +1,16 @@
 name: Lint
 on:
   push:
-    branches-ignore: [main]
+    branches-ignore: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 jobs:
   lint:
     name: Lint
     strategy:
       matrix:
-        java: [17, 18]
-        os: [ubuntu-latest]
+        java: [ 17, 18 ]
+        os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Codebase
