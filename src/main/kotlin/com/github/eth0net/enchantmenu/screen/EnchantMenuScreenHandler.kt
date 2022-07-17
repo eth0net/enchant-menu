@@ -44,8 +44,10 @@ class EnchantMenuScreenHandler(
 
             override fun getMaxItemCount() = 1
         })
-        for (i in playerInventory.main.indices) {
-            addSlot(Slot(playerInventory, i, 8 + i % 9 * 18, 8 + i / 9 * 18))
+        playerInventory.main.forEachIndexed { index, _ ->
+            val x = 8 + index % 9 * 18
+            val y = 84 + if (index < 9) 58 else (index - 9) / 9 * 18
+            addSlot(Slot(playerInventory, index, x, y))
         }
     }
 
@@ -70,7 +72,7 @@ class EnchantMenuScreenHandler(
         val book = stack.isOf(Items.BOOK)
         if (book) {
             stack2 = ItemStack(Items.ENCHANTED_BOOK)
-            stack2.nbt = stack.nbt!!.copy()
+            stack2.nbt = stack.nbt?.copy()
             inventory.setStack(0, stack2)
         }
 

@@ -72,65 +72,28 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         entry.positionMatrix.loadIdentity()
         entry.normalMatrix.loadIdentity()
         matrices.translate(0.0, 3.299999952316284, 1984.0)
-//        val f = 5.0f
         matrices.scale(5.0f, 5.0f, 5.0f)
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f))
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(20.0f))
-//        val g = MathHelper.lerp(delta, this.pageTurningSpeed, this.nextPageTurningSpeed)
-//        matrices.translate(
-//            ((1.0f - g) * 0.2f).toDouble(),
-//            ((1.0f - g) * 0.1f).toDouble(),
-//            ((1.0f - g) * 0.25f).toDouble()
-//        )
-//        val h = -(1.0f - g) * 90.0f - 90.0f
-//        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(h))
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180.0f))
-//        var l = MathHelper.lerp(delta, this.pageAngle, this.nextPageAngle) + 0.25f
-//        var m = MathHelper.lerp(delta, this.pageAngle, this.nextPageAngle) + 0.75f
-//        l = (l - MathHelper.fastFloor(l.toDouble()).toFloat()) * 1.6f - 0.3f
-//        m = (m - MathHelper.fastFloor(m.toDouble()).toFloat()) * 1.6f - 0.3f
-//        if (l < 0.0f) {
-//            l = 0.0f
-//        }
-//
-//        if (m < 0.0f) {
-//            m = 0.0f
-//        }
-//
-//        if (l > 1.0f) {
-//            l = 1.0f
-//        }
-//
-//        if (m > 1.0f) {
-//            m = 1.0f
-//        }
 
-//        this.BOOK_MODEL.setPageAngles(0.0f, l, m, g)
         val immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().buffer)
-//        val vertexConsumer = immediate.getBuffer(this.BOOK_MODEL.getLayer(EnchantmentScreen.BOOK_TEXTURE))
-//        this.BOOK_MODEL.render(matrices, vertexConsumer, 15728880, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, 1.0f)
         immediate.draw()
         matrices.pop()
         RenderSystem.viewport(0, 0, client!!.window.framebufferWidth, client!!.window.framebufferHeight)
         RenderSystem.restoreProjectionMatrix()
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-//        EnchantingPhrases.getInstance().setSeed(handler.seed.toLong())
-//        val n = handler.lapisCount
 
-        handler.enchantments!!.forEachIndexed { o, enchantment ->
+        handler.enchantments?.forEachIndexed { o, enchantment ->
             val p = i + 60
             val q = p + 20
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
-//            val r = (handler as EnchantmentScreenHandler).enchantmentPower[o]
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-//            val string = "" + r
-//            val s = 86 - textRenderer.getWidth(string)
-            val s = textRenderer.getWidth(enchantment.toString())
-//            val stringVisitable = EnchantingPhrases.getInstance().generatePhrase(textRenderer, s)
-            var t = 6839882
+            val text = enchantment.getName(handler.level)
+            val s = textRenderer.getWidth(text)
 
             val xOffset = i + 60
             val yOffset = j + 14 + 19 * o
@@ -139,22 +102,13 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val v = mouseY - yOffset
             if (u >= 0 && v >= 0 && u < 108 && v < 19) {
                 drawTexture(matrices, p, yOffset, 0, 204, 108, 19)
-                t = 16777088
             } else {
                 drawTexture(matrices, p, yOffset, 0, 166, 108, 19)
             }
 
+            val t = 8453920
             drawTexture(matrices, p + 1, yOffset + 1, 16 * o, 223, 16, 16)
-            textRenderer.drawTrimmed(Text.literal(enchantment.toString()), q, j + 16 + 19 * o, s, t)
-            t = 8453920
-
-            textRenderer.drawWithShadow(
-                matrices,
-                "string",
-                (q + 86 - textRenderer.getWidth("string")).toFloat(),
-                (j + 16 + 19 * o + 7).toFloat(),
-                t
-            )
+            textRenderer.drawTrimmed(text, q, j + 16 + 19 * o, s, t)
         }
     }
 
@@ -164,7 +118,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         super.render(matrices, mouseX, mouseY, delta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
 
-        handler.enchantments!!.forEachIndexed { index, enchantment ->
+        handler.enchantments?.forEachIndexed { index, enchantment ->
             val list: MutableList<Text> = mutableListOf()
             val m = index + 1
 

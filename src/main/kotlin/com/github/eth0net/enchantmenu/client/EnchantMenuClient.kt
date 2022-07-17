@@ -5,6 +5,8 @@ import com.github.eth0net.enchantmenu.client.gui.screen.EnchantMenuScreen
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.client.gui.screen.ingame.HandledScreens
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
@@ -28,7 +30,7 @@ object EnchantMenuClient : ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register { client ->
             while (keyBinding.wasPressed()) {
                 client.player?.sendMessage(Text.literal("Enchant Menu Open"))
-                client.player?.openHandledScreen(EnchantMenu.ScreenHandlerFactory)
+                ClientPlayNetworking.send(EnchantMenu.OPEN_PACKET, PacketByteBufs.empty())
             }
         }
 
