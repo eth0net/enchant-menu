@@ -3,12 +3,11 @@ package com.github.eth0net.enchantmenu.screen
 import com.github.eth0net.enchantmenu.EnchantMenu
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.enchantment.Enchantment
-import net.minecraft.enchantment.EnchantmentLevelEntry
+import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.inventory.SimpleInventory
-import net.minecraft.item.EnchantedBookItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.screen.ScreenHandler
@@ -64,10 +63,7 @@ class EnchantMenuScreenHandler(
         }
         val oldStack = inventory.getStack(0)
         if (oldStack.isEmpty) return false
-
         var newStack = oldStack
-        val list = generateEnchantments(newStack)
-        if (list.isEmpty()) return false
 
         val isBook = newStack.isOf(Items.BOOK)
         if (isBook) {
@@ -76,14 +72,7 @@ class EnchantMenuScreenHandler(
             inventory.setStack(0, newStack)
         }
 
-        // TODO: pick the right achievement and toggle it
-        for (enchantment in list) {
-            if (isBook) {
-                EnchantedBookItem.addEnchantment(newStack, EnchantmentLevelEntry(enchantment, level))
-            } else {
-                newStack.addEnchantment(enchantment, level)
-            }
-        }
+        newStack.toggleEnchantmentLevel(enchantments[id], level)
 
         player.incrementStat(Stats.ENCHANT_ITEM)
         if (player is ServerPlayerEntity) Criteria.ENCHANTED_ITEM.trigger(player, newStack, level)
@@ -106,6 +95,14 @@ class EnchantMenuScreenHandler(
     }
 
     private fun generateEnchantments(stack: ItemStack) = Registry.ENCHANTMENT.filter { it.isAcceptableItem(stack) }
+
+    private fun ItemStack.toggleEnchantmentLevel(enchantment: Enchantment, level: Int) {
+        if (EnchantmentHelper.getLevel(enchantment, this) == level) {
+            EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
+        } else {
+            addEnchantment(enchantment, level)
+        }
+    }
 
     override fun close(player: PlayerEntity) {
         super.close(player)

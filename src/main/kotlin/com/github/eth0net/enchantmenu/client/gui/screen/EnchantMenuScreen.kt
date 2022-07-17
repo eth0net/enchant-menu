@@ -35,21 +35,17 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        val i = (width - backgroundWidth) / 2
-        val j = (height - backgroundHeight) / 2
+        val x = (width - backgroundWidth) / 2
+        val y = (height - backgroundHeight) / 2
+        val clickX = mouseX - (x + 60).toDouble()
 
-        // TODO: figure out which one was clicked and get index in enchantments list
-
-        for (k in 0..2) {
-            val d = mouseX - (i + 60).toDouble()
-            val e = mouseY - (j + 14 + 19 * k).toDouble()
-            if (d >= 0f && e >= 0f && d < 108f && e < 19f && handler.onButtonClick(
-                    client!!.player as PlayerEntity, k
-                )
-            ) {
-                client!!.interactionManager!!.clickButton(handler.syncId, k)
-                return true
-            }
+        for (i in handler.enchantments.indices) {
+            val clickY = mouseY - (y + 14 + 19 * i).toDouble()
+            val inBounds = clickX > 0 && clickX < 108 && clickY > 0 && clickY < 19
+            val clicked = handler.onButtonClick(client!!.player as PlayerEntity, i)
+            if (!inBounds || !clicked) continue
+            client!!.interactionManager!!.clickButton(handler.syncId, i)
+            return true
         }
 
         return super.mouseClicked(mouseX, mouseY, button)
@@ -87,9 +83,9 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-        handler.enchantments.forEachIndexed { o, enchantment ->
+        handler.enchantments.forEachIndexed { index, enchantment ->
             val xOffset = x + 60
-            val yOffset = y + 14 + 19 * o
+            val yOffset = y + 14 + 19 * index
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
@@ -107,8 +103,8 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
                 drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 19)
             }
 
-            drawTexture(matrices, xOffset + 1, yOffset + 1, 16 * o, 223, 16, 16)
-            textRenderer.drawTrimmed(text, xOffset + 20, y + 16 + 19 * o, 86, color)
+            drawTexture(matrices, xOffset + 1, yOffset + 1, 16 * index, 223, 16, 16)
+            textRenderer.drawTrimmed(text, xOffset + 20, y + 16 + 19 * index, 86, color)
         }
     }
 
