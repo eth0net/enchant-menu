@@ -58,30 +58,35 @@ class EnchantMenuScreenHandler(
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
-        val stack = inventory.getStack(0)
-        if (stack.isEmpty) return false
+        if (id < 0 || id >= enchantments.size) {
+            EnchantMenu.LOGGER.error("${player.name} tried to press invalid enchant button $id")
+            return false
+        }
+        val oldStack = inventory.getStack(0)
+        if (oldStack.isEmpty) return false
 
-        var stack2 = stack
-        val list = generateEnchantments(stack)
+        var newStack = oldStack
+        val list = generateEnchantments(newStack)
         if (list.isEmpty()) return false
 
-        val book = stack.isOf(Items.BOOK)
-        if (book) {
-            stack2 = ItemStack(Items.ENCHANTED_BOOK)
-            stack2.nbt = stack.nbt?.copy()
-            inventory.setStack(0, stack2)
+        val isBook = newStack.isOf(Items.BOOK)
+        if (isBook) {
+            newStack = ItemStack(Items.ENCHANTED_BOOK)
+            newStack.nbt = oldStack.nbt?.copy()
+            inventory.setStack(0, newStack)
         }
 
+        // TODO: pick the right achievement and toggle it
         for (enchantment in list) {
-            if (book) {
-                EnchantedBookItem.addEnchantment(stack2, EnchantmentLevelEntry(enchantment, level))
+            if (isBook) {
+                EnchantedBookItem.addEnchantment(newStack, EnchantmentLevelEntry(enchantment, level))
             } else {
-                stack2.addEnchantment(enchantment, level)
+                newStack.addEnchantment(enchantment, level)
             }
         }
 
         player.incrementStat(Stats.ENCHANT_ITEM)
-        if (player is ServerPlayerEntity) Criteria.ENCHANTED_ITEM.trigger(player, stack2, level)
+        if (player is ServerPlayerEntity) Criteria.ENCHANTED_ITEM.trigger(player, newStack, level)
 
         inventory.markDirty()
         onContentChanged(inventory)

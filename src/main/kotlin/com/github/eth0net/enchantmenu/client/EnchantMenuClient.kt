@@ -15,7 +15,6 @@ import org.lwjgl.glfw.GLFW
 
 @Suppress("UNUSED")
 object EnchantMenuClient : ClientModInitializer {
-    private val LOGGER = EnchantMenu.LOGGER
     private val keyBinding = KeyBindingHelper.registerKeyBinding(
         KeyBinding(
             "key.enchant-menu.open", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X, "category.enchant-menu.general"
@@ -23,7 +22,7 @@ object EnchantMenuClient : ClientModInitializer {
     )
 
     override fun onInitializeClient() {
-        LOGGER.info("EnchantMenuClient initializing...")
+        EnchantMenu.LOGGER.info("EnchantMenuClient initializing...")
 
         HandledScreens.register(EnchantMenu.SCREEN_HANDLER, ::EnchantMenuScreen)
 
@@ -34,6 +33,6 @@ object EnchantMenuClient : ClientModInitializer {
             }
         }
 
-        LOGGER.info("EnchantMenuClient initialized.")
+        EnchantMenu.LOGGER.info("EnchantMenuClient initialized.")
     }
 }

@@ -38,6 +38,8 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val i = (width - backgroundWidth) / 2
         val j = (height - backgroundHeight) / 2
 
+        // TODO: figure out which one was clicked and get index in enchantments list
+
         for (k in 0..2) {
             val d = mouseX - (i + 60).toDouble()
             val e = mouseY - (j + 14 + 19 * k).toDouble()
