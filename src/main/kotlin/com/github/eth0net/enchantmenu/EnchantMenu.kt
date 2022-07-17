@@ -2,7 +2,13 @@ package com.github.eth0net.enchantmenu
 
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import net.fabricmc.api.ModInitializer
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.text.MutableText
+import net.minecraft.text.Text
+import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -10,17 +16,24 @@ import org.apache.logging.log4j.Logger
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
     private const val MOD_ID = "enchant-menu"
-
     internal val LOGGER: Logger = LogManager.getLogger(MOD_ID)
+    internal val SCREEN_HANDLER =
+        Registry.register(Registry.SCREEN_HANDLER, id("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler))
 
-    internal val SCREEN_HANDLER_TYPE: ScreenHandlerType<EnchantMenuScreenHandler> =
-        ScreenHandlerType { syncId, inventory -> EnchantMenuScreenHandler(syncId, inventory) }
+    object ScreenHandlerFactory : NamedScreenHandlerFactory {
+        override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): EnchantMenuScreenHandler {
+            return EnchantMenuScreenHandler(syncId, inv)
+        }
+
+        override fun getDisplayName(): MutableText = Text.translatable("Enchant Menu")
+    }
+
 
     override fun onInitialize() {
         LOGGER.info("EnchantMenu initializing...")
 
-        Registry.register(Registry.SCREEN_HANDLER, MOD_ID, SCREEN_HANDLER_TYPE)
-
         LOGGER.info("EnchantMenu initialized.")
     }
+
+    private fun id(path: String) = Identifier(MOD_ID, path)
 }

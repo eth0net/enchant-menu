@@ -21,17 +21,16 @@ import net.minecraft.stat.Stats
 import net.minecraft.util.registry.Registry
 
 class EnchantMenuScreenHandler(
-    syncId: Int, playerInventory: PlayerInventory, private var context: ScreenHandlerContext
-) : ScreenHandler(EnchantMenu.SCREEN_HANDLER_TYPE, syncId) {
-
+    syncId: Int, playerInventory: PlayerInventory, private val context: ScreenHandlerContext
+) : ScreenHandler(EnchantMenu.SCREEN_HANDLER, syncId) {
     constructor(syncId: Int, playerInventory: PlayerInventory) : this(
         syncId, playerInventory, ScreenHandlerContext.EMPTY
     )
 
     private val handler = this
-    val level: Int = 1
+    internal val level: Int = 1
 
-    private var enchantments: List<Enchantment>? = null
+    internal var enchantments: List<Enchantment>? = null
     private var inventory: Inventory = object : SimpleInventory(1) {
         override fun markDirty() {
             super.markDirty()
@@ -45,7 +44,6 @@ class EnchantMenuScreenHandler(
 
             override fun getMaxItemCount() = 1
         })
-
         for (i in playerInventory.main.indices) {
             addSlot(Slot(playerInventory, i, 8 + i % 9 * 18, 8 + i / 9 * 18))
         }
