@@ -30,7 +30,7 @@ class EnchantMenuScreenHandler(
     private val handler = this
     internal val level: Int = 1
 
-    internal var enchantments: List<Enchantment>? = null
+    internal var enchantments: List<Enchantment> = listOf()
     private var inventory: Inventory = object : SimpleInventory(1) {
         override fun markDirty() {
             super.markDirty()
@@ -53,11 +53,7 @@ class EnchantMenuScreenHandler(
 
     override fun onContentChanged(inventory: Inventory) {
         if (inventory != this.inventory) return
-
-        val itemStack = inventory.getStack(0)
-        if (itemStack.isEmpty || !itemStack.isEnchantable) return
-
-        enchantments = generateEnchantments(itemStack)
+        enchantments = generateEnchantments(inventory.getStack(0))
         this.sendContentUpdates()
     }
 

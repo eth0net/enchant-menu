@@ -58,11 +58,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         RenderSystem.setShader(GameRenderer::getPositionTexShader)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
         RenderSystem.setShaderTexture(0, texture)
-        val i = (width - backgroundWidth) / 2
-        val j = (height - backgroundHeight) / 2
-        drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
-        val k = client!!.window.scaleFactor.toInt()
-        RenderSystem.viewport((width - 320) / 2 * k, (height - 240) / 2 * k, 320 * k, 240 * k)
+        val x = (width - backgroundWidth) / 2
+        val y = (height - backgroundHeight) / 2
+        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight)
+        val scale = client!!.window.scaleFactor.toInt()
+        RenderSystem.viewport((width - 320) / 2 * scale, (height - 240) / 2 * scale, 320 * scale, 240 * scale)
         val matrix4f = Matrix4f.translate(-0.34f, 0.23f, 0.0f)
         matrix4f.multiply(Matrix4f.viewboxMatrix(90.0, 1.3333334f, 9.0f, 80.0f))
         RenderSystem.backupProjectionMatrix()
@@ -71,7 +71,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val entry = matrices.peek()
         entry.positionMatrix.loadIdentity()
         entry.normalMatrix.loadIdentity()
-        matrices.translate(0.0, 3.299999952316284, 1984.0)
+        matrices.translate(0.0, 3.3, 1984.0)
         matrices.scale(5.0f, 5.0f, 5.0f)
         matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f))
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(20.0f))
@@ -85,56 +85,46 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-        handler.enchantments?.forEachIndexed { o, enchantment ->
-            val p = i + 60
-            val q = p + 20
+        handler.enchantments.forEachIndexed { o, enchantment ->
+            val xOffset = x + 60
+            val yOffset = y + 14 + 19 * o
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+
             val text = enchantment.getName(handler.level)
-            val s = textRenderer.getWidth(text)
+            var color = 6839882
 
-            val xOffset = i + 60
-            val yOffset = j + 14 + 19 * o
-
-            val u = mouseX - xOffset
-            val v = mouseY - yOffset
-            if (u >= 0 && v >= 0 && u < 108 && v < 19) {
-                drawTexture(matrices, p, yOffset, 0, 204, 108, 19)
+            val mouseOffsetX = mouseX - xOffset
+            val mouseOffsetY = mouseY - yOffset
+            if (mouseOffsetX >= 0 && mouseOffsetY >= 0 && mouseOffsetX < 108 && mouseOffsetY < 19) {
+                drawTexture(matrices, xOffset, yOffset, 0, 204, 108, 19)
+                color = 0xFFFF80
             } else {
-                drawTexture(matrices, p, yOffset, 0, 166, 108, 19)
+                drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 19)
             }
 
-            val t = 8453920
-            drawTexture(matrices, p + 1, yOffset + 1, 16 * o, 223, 16, 16)
-            textRenderer.drawTrimmed(text, q, j + 16 + 19 * o, s, t)
+            drawTexture(matrices, xOffset + 1, yOffset + 1, 16 * o, 223, 16, 16)
+            textRenderer.drawTrimmed(text, xOffset + 20, y + 16 + 19 * o, 86, color)
         }
     }
 
     override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-        val delta = client!!.tickDelta
         renderBackground(matrices)
-        super.render(matrices, mouseX, mouseY, delta)
+        super.render(matrices, mouseX, mouseY, client!!.tickDelta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
 
-        handler.enchantments?.forEachIndexed { index, enchantment ->
-            val list: MutableList<Text> = mutableListOf()
-            val m = index + 1
+        handler.enchantments.run run@{
+            this.forEachIndexed loop@{ i, enchantment ->
+                if (!isPointWithinBounds(60, 14 + 19 * i, 108, 17, mouseX.toDouble(), mouseY.toDouble())) return@loop
 
-            list.add(
-                Text.translatable("container.enchant.clue", arrayOf(enchantment.getName(handler.level)))
-                    .formatted(Formatting.WHITE)
-            )
+                val nameText = Text.translatable("container.enchant.clue", enchantment.getName(handler.level))
+                val list = listOf(nameText.formatted(Formatting.WHITE))
 
-            val level = if (m == 1) {
-                Text.translatable("container.enchant.level.one")
-            } else {
-                Text.translatable("container.enchant.level.many", arrayOf(m))
+                renderTooltip(matrices, list, mouseX, mouseY)
+                return@run
             }
-            list.add(level.formatted(Formatting.GRAY))
-
-            renderTooltip(matrices, list, mouseX, mouseY)
         }
     }
 }
