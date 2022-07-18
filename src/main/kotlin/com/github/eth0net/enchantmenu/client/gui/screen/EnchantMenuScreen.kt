@@ -14,7 +14,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3f
@@ -102,8 +101,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
                 drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 19)
             }
 
-            drawTexture(matrices, xOffset + 1, yOffset + 1, 16 * index, 223, 16, 16)
-            textRenderer.drawTrimmed(text, xOffset + 20, y + 16 + 19 * index, 86, color)
+            textRenderer.drawTrimmed(text, xOffset + 4, yOffset + 4, 106, color)
         }
     }
 
@@ -112,16 +110,16 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         super.render(matrices, mouseX, mouseY, client!!.tickDelta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
 
-        handler.enchantments.run run@{
-            this.forEachIndexed loop@{ i, enchantment ->
-                if (!isPointWithinBounds(60, 14 + 19 * i, 108, 17, mouseX.toDouble(), mouseY.toDouble())) return@loop
-
-                val nameText = Text.translatable("container.enchant.clue", enchantment.getName(handler.level))
-                val list = listOf(nameText.formatted(Formatting.WHITE))
-
-                renderTooltip(matrices, list, mouseX, mouseY)
-                return@run
-            }
-        }
+//        handler.enchantments.run run@{
+//            this.forEachIndexed loop@{ i, enchantment ->
+//                if (!isPointWithinBounds(60, 14 + 19 * i, 108, 17, mouseX.toDouble(), mouseY.toDouble())) return@loop
+//
+//                val nameText = Text.translatable("container.enchant.clue", enchantment.getName(handler.level))
+//                val list = listOf(nameText.formatted(Formatting.WHITE))
+//
+//                renderTooltip(matrices, list, mouseX, mouseY)
+//                return@run
+//            }
+//        }
     }
 }

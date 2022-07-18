@@ -39,6 +39,6 @@ object EnchantMenu : ModInitializer {
             return EnchantMenuScreenHandler(syncId, inv)
         }
 
-        override fun getDisplayName(): MutableText = Text.translatable("Enchant Menu")
+        override fun getDisplayName(): MutableText = Text.translatable("enchant-menu.title")
     }
 }

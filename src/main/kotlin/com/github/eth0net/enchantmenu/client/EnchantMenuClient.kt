@@ -15,7 +15,7 @@ import org.lwjgl.glfw.GLFW
 
 @Suppress("UNUSED")
 object EnchantMenuClient : ClientModInitializer {
-    private val keyBinding = KeyBindingHelper.registerKeyBinding(
+    private val openKey = KeyBindingHelper.registerKeyBinding(
         KeyBinding(
             "key.enchant-menu.open", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_X, "category.enchant-menu.general"
         )
@@ -27,7 +27,7 @@ object EnchantMenuClient : ClientModInitializer {
         HandledScreens.register(EnchantMenu.SCREEN_HANDLER, ::EnchantMenuScreen)
 
         ClientTickEvents.END_CLIENT_TICK.register { client ->
-            while (keyBinding.wasPressed()) {
+            while (openKey.wasPressed()) {
                 client.player?.sendMessage(Text.literal("Enchant Menu Open"))
                 ClientPlayNetworking.send(EnchantMenu.OPEN_PACKET, PacketByteBufs.empty())
             }
