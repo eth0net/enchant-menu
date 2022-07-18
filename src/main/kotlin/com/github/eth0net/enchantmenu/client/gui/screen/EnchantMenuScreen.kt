@@ -41,9 +41,8 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         for (i in handler.enchantments.indices) {
             val clickY = mouseY - (y + 14 + 19 * i).toDouble()
-            val inBounds = clickX > 0 && clickX < 108 && clickY > 0 && clickY < 19
-            val clicked = handler.onButtonClick(client!!.player as PlayerEntity, i)
-            if (!inBounds || !clicked) continue
+            val inBounds = clickX >= 0 && clickX < 108 && clickY >= 0 && clickY < 19
+            if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, i)) continue
             client!!.interactionManager!!.clickButton(handler.syncId, i)
             return true
         }
@@ -94,9 +93,9 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val text = enchantment.getName(handler.level)
             var color = 6839882
 
-            val mouseOffsetX = mouseX - xOffset
-            val mouseOffsetY = mouseY - yOffset
-            if (mouseOffsetX >= 0 && mouseOffsetY >= 0 && mouseOffsetX < 108 && mouseOffsetY < 19) {
+            val hoverX = mouseX - xOffset
+            val hoverY = mouseY - yOffset
+            if (hoverX in 0..107 && hoverY in 0..18) {
                 drawTexture(matrices, xOffset, yOffset, 0, 204, 108, 19)
                 color = 0xFFFF80
             } else {
