@@ -17,6 +17,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3f
+import org.lwjgl.glfw.GLFW
 
 @Environment(EnvType.CLIENT)
 class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: PlayerInventory, title: Text) :
@@ -47,6 +48,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         }
 
         return super.mouseClicked(mouseX, mouseY, button)
+    }
+
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) handler.incLevel()
+        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) handler.decLevel()
+        return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
     override fun drawBackground(matrices: MatrixStack, delta: Float, mouseX: Int, mouseY: Int) {

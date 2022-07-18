@@ -27,7 +27,6 @@ class EnchantMenuScreenHandler(
     )
 
     private val handler = this
-    internal val level: Int = 1
 
     internal var enchantments: List<Enchantment> = listOf()
     private var inventory: Inventory = object : SimpleInventory(1) {
@@ -35,6 +34,18 @@ class EnchantMenuScreenHandler(
             super.markDirty()
             handler.onContentChanged(this)
         }
+    }
+
+    private val minLevel = 1
+    private val maxLevel = 10
+    internal var level = 1
+
+    internal fun incLevel() {
+        if (level < maxLevel) level = level.inc()
+    }
+
+    internal fun decLevel() {
+        if (level > minLevel) level = level.dec()
     }
 
     init {
@@ -52,7 +63,7 @@ class EnchantMenuScreenHandler(
 
     override fun onContentChanged(inventory: Inventory) {
         if (inventory != this.inventory) return
-        enchantments = generateEnchantments(inventory.getStack(0))
+        enchantments = inventory.getStack(0).acceptableEnchantments
         this.sendContentUpdates()
     }
 
@@ -61,18 +72,23 @@ class EnchantMenuScreenHandler(
             EnchantMenu.LOGGER.error("${player.name} tried to press invalid enchant button $id")
             return false
         }
+
         val oldStack = inventory.getStack(0)
         if (oldStack.isEmpty) return false
-        var newStack = oldStack
 
-        val isBook = newStack.isOf(Items.BOOK)
-        if (isBook) {
+        var newStack = oldStack
+        if (newStack.isOf(Items.BOOK)) {
             newStack = ItemStack(Items.ENCHANTED_BOOK)
             newStack.nbt = oldStack.nbt?.copy()
             inventory.setStack(0, newStack)
         }
 
-        newStack.toggleEnchantmentLevel(enchantments[id], level)
+        val enchantment = enchantments[id]
+        if (oldStack.hasEnchantment(enchantment)) {
+            newStack.removeEnchantment(enchantment)
+        } else {
+            newStack.addEnchantment(enchantment, level)
+        }
 
         player.incrementStat(Stats.ENCHANT_ITEM)
         if (player is ServerPlayerEntity) Criteria.ENCHANTED_ITEM.trigger(player, newStack, level)
@@ -94,15 +110,14 @@ class EnchantMenuScreenHandler(
         return true
     }
 
-    private fun generateEnchantments(stack: ItemStack) = Registry.ENCHANTMENT.filter { it.isAcceptableItem(stack) }
+    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this) > 0
 
-    private fun ItemStack.toggleEnchantmentLevel(enchantment: Enchantment, level: Int) {
-        if (EnchantmentHelper.getLevel(enchantment, this) == level) {
-            EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
-        } else {
-            addEnchantment(enchantment, level)
-        }
+    private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
+        EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
     }
+
+    private val ItemStack.acceptableEnchantments: List<Enchantment>
+        get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
 
     override fun close(player: PlayerEntity) {
         super.close(player)
