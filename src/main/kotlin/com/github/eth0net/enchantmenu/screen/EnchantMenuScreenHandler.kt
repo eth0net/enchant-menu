@@ -120,8 +120,6 @@ class EnchantMenuScreenHandler(
 
     private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
 
-    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = enchantmentLevel(enchantment) > 0
-
     private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
         EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
     }
