@@ -1,7 +1,6 @@
 package com.github.eth0net.enchantmenu.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
-import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
@@ -13,10 +12,8 @@ import net.minecraft.item.Items
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.Slot
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
-import net.minecraft.stat.Stats
 import net.minecraft.util.registry.Registry
 
 class EnchantMenuScreenHandler(
@@ -59,7 +56,7 @@ class EnchantMenuScreenHandler(
         if (level > minLevel) --_level
     }
 
-    internal var enchantments: List<Enchantment> = listOf()
+    internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
     init {
         addSlot(object : Slot(inventory, 0, 15, 47) {
@@ -76,7 +73,8 @@ class EnchantMenuScreenHandler(
 
     override fun onContentChanged(inventory: Inventory) {
         if (inventory != this.inventory) return
-        enchantments = inventory.getStack(0).acceptableEnchantments
+        val stack = inventory.getStack(0)
+        enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
         this.sendContentUpdates()
     }
 
@@ -96,15 +94,12 @@ class EnchantMenuScreenHandler(
             inventory.setStack(0, newStack)
         }
 
-        val enchantment = enchantments[id]
-        if (oldStack.hasEnchantment(enchantment)) {
+        val (enchantment, oldLevel) = enchantments[id]
+        if (oldLevel > 0) {
             newStack.removeEnchantment(enchantment)
         } else {
             newStack.addEnchantment(enchantment, level)
         }
-
-        player.incrementStat(Stats.ENCHANT_ITEM)
-        if (player is ServerPlayerEntity) Criteria.ENCHANTED_ITEM.trigger(player, newStack, level)
 
         inventory.markDirty()
         onContentChanged(inventory)
@@ -123,7 +118,9 @@ class EnchantMenuScreenHandler(
         return true
     }
 
-    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this) > 0
+    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
+
+    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = enchantmentLevel(enchantment) > 0
 
     private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
         EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)

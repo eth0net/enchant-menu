@@ -41,7 +41,7 @@ object EnchantMenu : ModInitializer {
         LOGGER.info("EnchantMenu initialized.")
     }
 
-    private fun id(path: String) = Identifier(MOD_ID, path)
+    internal fun id(path: String) = Identifier(MOD_ID, path)
 
     object ScreenHandlerFactory : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): EnchantMenuScreenHandler {

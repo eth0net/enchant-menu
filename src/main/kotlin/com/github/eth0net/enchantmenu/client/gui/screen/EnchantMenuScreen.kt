@@ -97,7 +97,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-        handler.enchantments.forEachIndexed { index, enchantment ->
+        handler.enchantments.forEachIndexed { index, (enchantment, currentLevel) ->
             val xOffset = x + 60
             val yOffset = y + 14 + 19 * index
             zOffset = 0
@@ -105,12 +105,15 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             RenderSystem.setShaderTexture(0, texture)
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-            val text = enchantment.getName(handler.level)
+            val hasEnchantment = currentLevel > 0
+            val level = if (hasEnchantment) currentLevel else handler.level
+            val text = enchantment.getName(level)
             var color = 6839882
 
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
-            if (hoverX in 0..107 && hoverY in 0..18) {
+            val inBounds = hoverX in 0..107 && hoverY in 0..18
+            if (hasEnchantment || inBounds) {
                 drawTexture(matrices, xOffset, yOffset, 0, 204, 108, 19)
                 color = 0xFFFF80
             } else {
