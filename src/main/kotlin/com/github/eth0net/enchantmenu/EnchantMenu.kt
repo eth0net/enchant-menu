@@ -20,6 +20,7 @@ object EnchantMenu : ModInitializer {
     internal val LOGGER: Logger = LogManager.getLogger(MOD_ID)
     internal val SCREEN_HANDLER =
         Registry.register(Registry.SCREEN_HANDLER, id("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler))
+
     internal val OPEN_PACKET = id("open_enchant_menu")
     internal val INC_PACKET = id("increment_level")
     internal val DEC_PACKET = id("decrement_level")
