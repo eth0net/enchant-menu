@@ -1,9 +1,12 @@
 package com.github.eth0net.enchantmenu.client.gui.screen
 
+import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.GameRenderer
@@ -51,8 +54,14 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) handler.incLevel()
-        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) handler.decLevel()
+        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) {
+            handler.incrementLevel()
+            ClientPlayNetworking.send(EnchantMenu.INC_PACKET, PacketByteBufs.empty())
+        }
+        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) {
+            handler.decrementLevel()
+            ClientPlayNetworking.send(EnchantMenu.DEC_PACKET, PacketByteBufs.empty())
+        }
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 

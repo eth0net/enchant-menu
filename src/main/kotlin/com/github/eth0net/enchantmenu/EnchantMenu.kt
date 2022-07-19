@@ -21,12 +21,20 @@ object EnchantMenu : ModInitializer {
     internal val SCREEN_HANDLER =
         Registry.register(Registry.SCREEN_HANDLER, id("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler))
     internal val OPEN_PACKET = id("open_enchant_menu")
+    internal val INC_PACKET = id("increment_level")
+    internal val DEC_PACKET = id("decrement_level")
 
     override fun onInitialize() {
         LOGGER.info("EnchantMenu initializing...")
 
         ServerPlayNetworking.registerGlobalReceiver(OPEN_PACKET) { _, player, _, _, _ ->
             player.openHandledScreen(ScreenHandlerFactory)
+        }
+        ServerPlayNetworking.registerGlobalReceiver(INC_PACKET) { _, player, _, _, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.incrementLevel()
+        }
+        ServerPlayNetworking.registerGlobalReceiver(DEC_PACKET) { _, player, _, _, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.decrementLevel()
         }
 
         LOGGER.info("EnchantMenu initialized.")

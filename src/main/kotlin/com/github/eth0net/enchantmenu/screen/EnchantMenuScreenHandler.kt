@@ -28,7 +28,6 @@ class EnchantMenuScreenHandler(
 
     private val handler = this
 
-    internal var enchantments: List<Enchantment> = listOf()
     private var inventory: Inventory = object : SimpleInventory(1) {
         override fun markDirty() {
             super.markDirty()
@@ -38,15 +37,29 @@ class EnchantMenuScreenHandler(
 
     private val minLevel = 1
     private val maxLevel = 10
-    internal var level = 1
+    private var _level: Int = minLevel
+        set(value) {
+            field = if (value < minLevel) {
+                minLevel
+            } else if (value > maxLevel) {
+                maxLevel
+            } else {
+                value
+            }
+        }
 
-    internal fun incLevel() {
-        if (level < maxLevel) level = level.inc()
+    internal val level: Int
+        get() = _level
+
+    internal fun incrementLevel() {
+        if (level < maxLevel) ++_level
     }
 
-    internal fun decLevel() {
-        if (level > minLevel) level = level.dec()
+    internal fun decrementLevel() {
+        if (level > minLevel) --_level
     }
+
+    internal var enchantments: List<Enchantment> = listOf()
 
     init {
         addSlot(object : Slot(inventory, 0, 15, 47) {
