@@ -47,11 +47,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
-        val clickX = mouseX - (x + 81).toDouble()
+        val clickX = mouseX - (x + 51).toDouble()
 
         for (i in handler.enchantments.indices) {
-            val clickY = mouseY - (y + 7 + 18 * i).toDouble()
-            val inBounds = clickX >= 0 && clickX < 108 && clickY >= 0 && clickY < 18
+            val clickY = mouseY - (y + 7 + 12 * i).toDouble()
+            val inBounds = clickX >= 0 && clickX < 138 && clickY >= 0 && clickY < 12
             if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, i)) continue
             client!!.interactionManager!!.clickButton(handler.syncId, i)
             return true
@@ -104,16 +104,16 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         // level change buttons
         clearChildren()
         if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
-            x + 38, y + 18, 8, 13, 116, 166, texture
+            x + 38, y + 18, 8, 13, 146, 166, texture
         ) { incrementLevel() })
         if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
-            x + 7, y + 18, 8, 13, 108, 166, texture
+            x + 7, y + 18, 8, 13, 138, 166, texture
         ) { decrementLevel() })
 
         // enchantments list
         handler.enchantments.forEachIndexed { index, (enchantment, currentLevel) ->
-            val xOffset = x + 81
-            val yOffset = y + 7 + 18 * index
+            val xOffset = x + 51
+            val yOffset = y + 7 + 12 * index
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
@@ -126,18 +126,17 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
-            val inBounds = hoverX in 0..107 && hoverY in 0..18
-            if (inBounds) {
-                drawTexture(matrices, xOffset, yOffset, 0, 220, 108, 18)
+            if (hoverX in 0..137 && hoverY in 0..12) {
+                drawTexture(matrices, xOffset, yOffset, 0, 202, 138, 12)
                 color = 0xFFFF80
             } else if (hasEnchantment) {
-                drawTexture(matrices, xOffset, yOffset, 0, 202, 108, 18)
+                drawTexture(matrices, xOffset, yOffset, 0, 190, 138, 12)
                 color = 0xFFFF80
             } else {
-                drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 18)
+                drawTexture(matrices, xOffset, yOffset, 0, 166, 138, 12)
             }
 
-            textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 104, color)
+            textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 134, color)
         }
     }
 

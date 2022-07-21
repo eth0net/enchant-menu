@@ -59,7 +59,7 @@ class EnchantMenuScreenHandler(
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
     init {
-        addSlot(object : Slot(inventory, 0, 55, 17) {
+        addSlot(object : Slot(inventory, 0, 29, 41) {
             override fun canInsert(stack: ItemStack) = true
 
             override fun getMaxItemCount() = 1
