@@ -32,8 +32,8 @@ class EnchantMenuScreenHandler(
         }
     }
 
-    private val minLevel = 1
-    private val maxLevel = 10
+    internal val minLevel = 1
+    internal val maxLevel = 10
     private var _level: Int = minLevel
         set(value) {
             field = if (value < minLevel) {
@@ -59,16 +59,20 @@ class EnchantMenuScreenHandler(
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
     init {
-        addSlot(object : Slot(inventory, 0, 15, 47) {
+        addSlot(object : Slot(inventory, 0, 55, 17) {
             override fun canInsert(stack: ItemStack) = true
 
             override fun getMaxItemCount() = 1
         })
         playerInventory.main.forEachIndexed { index, _ ->
-            val x = 8 + index % 9 * 18
-            val y = 84 + if (index < 9) 58 else (index - 9) / 9 * 18
+            val x = 29 + index % 9 * 18
+            val y = 85 + if (index < 9) 58 else (index - 9) / 9 * 18
             addSlot(Slot(playerInventory, index, x, y))
         }
+        playerInventory.armor.forEachIndexed { index, _ ->
+            addSlot(Slot(playerInventory, index + 36, 7, 67 + (3 - index) * 18))
+        }
+        addSlot(Slot(playerInventory, 41, 7, 142))
     }
 
     override fun onContentChanged(inventory: Inventory) {

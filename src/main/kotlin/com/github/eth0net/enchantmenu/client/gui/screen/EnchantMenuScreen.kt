@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.GameRenderer
 import net.minecraft.client.render.Tessellator
@@ -17,18 +18,24 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3f
 import org.lwjgl.glfw.GLFW
 
 @Environment(EnvType.CLIENT)
 class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: PlayerInventory, title: Text) :
-    HandledScreen<EnchantMenuScreenHandler>(handler, playerInventory, title) {
+    HandledScreen<EnchantMenuScreenHandler>(handler, object : PlayerInventory(playerInventory.player) {
+        override fun getDisplayName() = Text.empty()
+    }, title) {
 
-    private val texture = Identifier("textures/gui/container/enchanting_table.png")
+    private val texture = EnchantMenu.id("textures/menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
+
+    init {
+        backgroundWidth = 196
+        backgroundHeight = 166
+    }
 
     override fun handledScreenTick() {
         super.handledScreenTick()
@@ -40,11 +47,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
-        val clickX = mouseX - (x + 60).toDouble()
+        val clickX = mouseX - (x + 81).toDouble()
 
         for (i in handler.enchantments.indices) {
-            val clickY = mouseY - (y + 14 + 19 * i).toDouble()
-            val inBounds = clickX >= 0 && clickX < 108 && clickY >= 0 && clickY < 19
+            val clickY = mouseY - (y + 7 + 18 * i).toDouble()
+            val inBounds = clickX >= 0 && clickX < 108 && clickY >= 0 && clickY < 18
             if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, i)) continue
             client!!.interactionManager!!.clickButton(handler.syncId, i)
             return true
@@ -54,14 +61,8 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) {
-            handler.incrementLevel()
-            ClientPlayNetworking.send(EnchantMenu.INC_PACKET, PacketByteBufs.empty())
-        }
-        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) {
-            handler.decrementLevel()
-            ClientPlayNetworking.send(EnchantMenu.DEC_PACKET, PacketByteBufs.empty())
-        }
+        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) incrementLevel()
+        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) decrementLevel()
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
@@ -89,17 +90,30 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(20.0f))
         matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180.0f))
 
-        val immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().buffer)
-        immediate.draw()
+        VertexConsumerProvider.immediate(Tessellator.getInstance().buffer).draw()
         matrices.pop()
         RenderSystem.viewport(0, 0, client!!.window.framebufferWidth, client!!.window.framebufferHeight)
         RenderSystem.restoreProjectionMatrix()
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
+        // level text
+        val level = handler.level.toString()
+        textRenderer.drawTrimmed(Text.literal(level), x + 27 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
+
+        // level change buttons
+        clearChildren()
+        if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
+            x + 38, y + 18, 8, 13, 116, 166, texture
+        ) { incrementLevel() })
+        if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
+            x + 7, y + 18, 8, 13, 108, 166, texture
+        ) { decrementLevel() })
+
+        // enchantments list
         handler.enchantments.forEachIndexed { index, (enchantment, currentLevel) ->
-            val xOffset = x + 60
-            val yOffset = y + 14 + 19 * index
+            val xOffset = x + 81
+            val yOffset = y + 7 + 18 * index
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
@@ -113,14 +127,17 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
             val inBounds = hoverX in 0..107 && hoverY in 0..18
-            if (hasEnchantment || inBounds) {
-                drawTexture(matrices, xOffset, yOffset, 0, 204, 108, 19)
+            if (inBounds) {
+                drawTexture(matrices, xOffset, yOffset, 0, 220, 108, 18)
+                color = 0xFFFF80
+            } else if (hasEnchantment) {
+                drawTexture(matrices, xOffset, yOffset, 0, 202, 108, 18)
                 color = 0xFFFF80
             } else {
-                drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 19)
+                drawTexture(matrices, xOffset, yOffset, 0, 166, 108, 18)
             }
 
-            textRenderer.drawTrimmed(text, xOffset + 4, yOffset + 4, 106, color)
+            textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 104, color)
         }
     }
 
@@ -140,5 +157,15 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 //                return@run
 //            }
 //        }
+    }
+
+    private fun incrementLevel() {
+        handler.incrementLevel()
+        ClientPlayNetworking.send(EnchantMenu.INC_PACKET, PacketByteBufs.empty())
+    }
+
+    private fun decrementLevel() {
+        handler.decrementLevel()
+        ClientPlayNetworking.send(EnchantMenu.DEC_PACKET, PacketByteBufs.empty())
     }
 }
