@@ -33,7 +33,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     private var stack = ItemStack.EMPTY
     private var ticks = 0
 
-    private val maxRows = 6
+    private val maxRows = 5
     private val canScroll get() = handler.enchantments.size > maxRows
     private val maxScrollOffset get() = if (canScroll) handler.enchantments.size - maxRows else 0
     private var scrollOffset = 0
@@ -64,11 +64,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val y = (height - backgroundHeight) / 2
         val clickX = mouseX - (x + 51).toDouble()
 
-        for (i in handler.enchantments.indices) {
-            val clickY = mouseY - (y + 7 + 12 * i).toDouble()
+        for (i in 0 until maxRows) {
+            val index = i + scrollOffset
+            val clickY = mouseY - (y + 19 + 12 * i).toDouble()
             val inBounds = clickX >= 0 && clickX < 138 && clickY >= 0 && clickY < 12
-            if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, i)) continue
-            client!!.interactionManager!!.clickButton(handler.syncId, i)
+            if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, index)) continue
+            client!!.interactionManager!!.clickButton(handler.syncId, index)
             return true
         }
 
@@ -136,7 +137,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             if (index >= handler.enchantments.size) break
 
             val xOffset = x + 51
-            val yOffset = y + 7 + 12 * i
+            val yOffset = y + 19 + 12 * i
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
