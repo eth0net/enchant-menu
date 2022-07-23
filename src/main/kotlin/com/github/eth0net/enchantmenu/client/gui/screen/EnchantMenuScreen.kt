@@ -120,8 +120,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
             val hasEnchantment = currentLevel > 0
-            val level = if (hasEnchantment) currentLevel else handler.level
-            val text = enchantment.getName(level)
+            val text = enchantment.getName(if (hasEnchantment) currentLevel else handler.level)
             var color = 6839882
 
             val hoverX = mouseX - xOffset

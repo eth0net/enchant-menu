@@ -48,14 +48,6 @@ class EnchantMenuScreenHandler(
     internal val level: Int
         get() = _level
 
-    internal fun incrementLevel() {
-        if (level < maxLevel) ++_level
-    }
-
-    internal fun decrementLevel() {
-        if (level > minLevel) --_level
-    }
-
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
     init {
@@ -73,13 +65,6 @@ class EnchantMenuScreenHandler(
             addSlot(Slot(playerInventory, index + 36, 7, 67 + (3 - index) * 18))
         }
         addSlot(Slot(playerInventory, 41, 7, 142))
-    }
-
-    override fun onContentChanged(inventory: Inventory) {
-        if (inventory != this.inventory) return
-        val stack = inventory.getStack(0)
-        enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
-        this.sendContentUpdates()
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
@@ -122,21 +107,19 @@ class EnchantMenuScreenHandler(
         return true
     }
 
-    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
-
-    private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
-        EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
+    override fun onContentChanged(inventory: Inventory) {
+        if (inventory != this.inventory) return
+        val stack = inventory.getStack(0)
+        enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
+        this.sendContentUpdates()
     }
 
-    private val ItemStack.acceptableEnchantments: List<Enchantment>
-        get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
+    override fun canUse(player: PlayerEntity) = true
 
     override fun close(player: PlayerEntity) {
         super.close(player)
         dropInventory(player, inventory)
     }
-
-    override fun canUse(player: PlayerEntity) = true
 
     override fun transferSlot(player: PlayerEntity, index: Int): ItemStack {
         val slot = slots[index]
@@ -168,5 +151,24 @@ class EnchantMenuScreenHandler(
         slot.onTakeItem(player, stack2)
 
         return stack
+    }
+
+    private val ItemStack.acceptableEnchantments: List<Enchantment>
+        get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
+
+    private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
+        return EnchantmentHelper.getLevel(enchantment, this)
+    }
+
+    private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
+        EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
+    }
+
+    internal fun incrementLevel() {
+        if (level < maxLevel) ++_level
+    }
+
+    internal fun decrementLevel() {
+        if (level > minLevel) --_level
     }
 }
