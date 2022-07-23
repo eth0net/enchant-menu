@@ -21,6 +21,7 @@ import net.minecraft.text.Text
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3f
 import org.lwjgl.glfw.GLFW
+import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
 class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: PlayerInventory, title: Text) :
@@ -31,6 +32,20 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     private val texture = EnchantMenu.id("textures/menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
+
+    private val maxRows = 6
+    private val canScroll get() = handler.enchantments.size > maxRows
+    private val maxScrollOffset get() = if (canScroll) handler.enchantments.size - maxRows else 0
+    private var scrollOffset = 0
+        set(value) {
+            field = if (value <= 0) {
+                0
+            } else if (value > maxScrollOffset) {
+                maxScrollOffset
+            } else {
+                value
+            }
+        }
 
     init {
         backgroundWidth = 196
@@ -58,6 +73,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         }
 
         return super.mouseClicked(mouseX, mouseY, button)
+    }
+
+    override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double): Boolean {
+        scrollOffset -= amount.roundToInt()
+        return super.mouseScrolled(mouseX, mouseY, amount)
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
@@ -111,14 +131,18 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         ) { decrementLevel() })
 
         // enchantments list
-        handler.enchantments.forEachIndexed { index, (enchantment, currentLevel) ->
+        for (i in 0 until maxRows) {
+            val index = i + scrollOffset
+            if (index >= handler.enchantments.size) break
+
             val xOffset = x + 51
-            val yOffset = y + 7 + 12 * index
+            val yOffset = y + 7 + 12 * i
             zOffset = 0
             RenderSystem.setShader(GameRenderer::getPositionTexShader)
             RenderSystem.setShaderTexture(0, texture)
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
+            val (enchantment, currentLevel) = handler.enchantments[index]
             val hasEnchantment = currentLevel > 0
             val text = enchantment.getName(if (hasEnchantment) currentLevel else handler.level)
             var color = 6839882
