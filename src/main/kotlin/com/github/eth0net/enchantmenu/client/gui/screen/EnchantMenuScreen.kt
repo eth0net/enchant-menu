@@ -7,11 +7,13 @@ import com.github.eth0net.enchantmenu.network.channel.DecrementChannel
 import com.github.eth0net.enchantmenu.network.channel.IncrementChannel
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.util.Identifier
+import com.github.eth0net.enchantmenu.util.Logger
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.minecraft.client.gui.screen.ingame.EnchantmentScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.render.DiffuseLighting
@@ -66,12 +68,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
-        val clickX = mouseX - (x + 51).toDouble()
+        val clickX = mouseX.roundToInt() - (x + 51)
 
         for (i in 0 until maxRows) {
             val index = i + scrollOffset
-            val clickY = mouseY - (y + 19 + 12 * i).toDouble()
-            val inBounds = clickX >= 0 && clickX < 138 && clickY >= 0 && clickY < 12
+            val clickY = mouseY.roundToInt() - (y + 19 + 12 * i)
+            val inBounds = clickX in 0..133 && clickY in 0..11
             if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, index)) continue
             client!!.interactionManager!!.clickButton(handler.syncId, index)
             return true
@@ -100,28 +102,9 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
         drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight)
-        val scale = client!!.window.scaleFactor.toInt()
-        RenderSystem.viewport((width - 320) / 2 * scale, (height - 240) / 2 * scale, 320 * scale, 240 * scale)
-        val matrix4f = Matrix4f.translate(-0.34f, 0.23f, 0.0f)
-        matrix4f.multiply(Matrix4f.viewboxMatrix(90.0, 1.3333334f, 9.0f, 80.0f))
-        RenderSystem.backupProjectionMatrix()
-        RenderSystem.setProjectionMatrix(matrix4f)
-        matrices.push()
-        val entry = matrices.peek()
-        entry.positionMatrix.loadIdentity()
-        entry.normalMatrix.loadIdentity()
-        matrices.translate(0.0, 3.3, 1984.0)
-        matrices.scale(5.0f, 5.0f, 5.0f)
-        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180.0f))
-        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(20.0f))
-        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(180.0f))
-
-        VertexConsumerProvider.immediate(Tessellator.getInstance().buffer).draw()
-        matrices.pop()
-        RenderSystem.viewport(0, 0, client!!.window.framebufferWidth, client!!.window.framebufferHeight)
-        RenderSystem.restoreProjectionMatrix()
         DiffuseLighting.enableGuiDepthLighting()
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+        zOffset = 0
 
         // level text
         val level = handler.level.toString()
@@ -130,42 +113,48 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         // level change buttons
         clearChildren()
         if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
-            x + 38, y + 18, 8, 13, 146, 166, texture
+            x + 38, y + 18, 8, 13, 142, 166, texture
         ) { incrementLevel() })
         if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
-            x + 7, y + 18, 8, 13, 138, 166, texture
+            x + 7, y + 18, 8, 13, 134, 166, texture
         ) { decrementLevel() })
 
-        // enchantments list
+        // scroll marker
+        if (canScroll) {
+            val scrollMarkerX = x + 185
+            val scrollMarkerY = y + 19 + (48 * (scrollOffset.toFloat() / maxScrollOffset)).toInt()
+            RenderSystem.setShaderTexture(0, texture)
+            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 150, 166, 4, 12)
+        }
+
+        // enchantments list, from scroll offset to max rows
         for (i in 0 until maxRows) {
             val index = i + scrollOffset
             if (index >= handler.enchantments.size) break
 
             val xOffset = x + 51
             val yOffset = y + 19 + 12 * i
-            zOffset = 0
-            RenderSystem.setShader(GameRenderer::getPositionTexShader)
-            RenderSystem.setShaderTexture(0, texture)
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
 
             val (enchantment, currentLevel) = handler.enchantments[index]
             val hasEnchantment = currentLevel > 0
             val text = enchantment.getName(if (hasEnchantment) currentLevel else handler.level)
             var color = 6839882
 
+            RenderSystem.setShaderTexture(0, texture)
+
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
             if (hoverX in 0..137 && hoverY in 0..12) {
-                drawTexture(matrices, xOffset, yOffset, 0, 202, 138, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12, )
                 color = 0xFFFF80
             } else if (hasEnchantment) {
-                drawTexture(matrices, xOffset, yOffset, 0, 190, 138, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 190, 134, 12)
                 color = 0xFFFF80
             } else {
-                drawTexture(matrices, xOffset, yOffset, 0, 166, 138, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 166, 134, 12)
             }
 
-            textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 134, color)
+            textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 130, color)
         }
     }
 
