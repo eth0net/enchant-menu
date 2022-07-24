@@ -7,26 +7,20 @@ import com.github.eth0net.enchantmenu.network.channel.DecrementChannel
 import com.github.eth0net.enchantmenu.network.channel.IncrementChannel
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.util.Identifier
-import com.github.eth0net.enchantmenu.util.Logger
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
-import net.minecraft.client.gui.screen.ingame.EnchantmentScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
-import net.minecraft.util.math.Matrix4f
-import net.minecraft.util.math.Vec3f
 import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
@@ -145,7 +139,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
             if (hoverX in 0..137 && hoverY in 0..12) {
-                drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12, )
+                drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12)
                 color = 0xFFFF80
             } else if (hasEnchantment) {
                 drawTexture(matrices, xOffset, yOffset, 0, 190, 134, 12)

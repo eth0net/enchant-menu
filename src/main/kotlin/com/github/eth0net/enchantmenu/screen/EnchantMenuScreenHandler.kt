@@ -1,6 +1,9 @@
 package com.github.eth0net.enchantmenu.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
+import com.github.eth0net.enchantmenu.screen.slot.ArmorSlot
+import com.github.eth0net.enchantmenu.screen.slot.EnchantSlot
+import com.github.eth0net.enchantmenu.screen.slot.OffhandSlot
 import com.github.eth0net.enchantmenu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
@@ -52,20 +55,16 @@ class EnchantMenuScreenHandler(
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
     init {
-        addSlot(object : Slot(inventory, 0, 29, 41) {
-            override fun canInsert(stack: ItemStack) = true
-
-            override fun getMaxItemCount() = 1
-        })
+        addSlot(EnchantSlot(inventory, 0, 29, 41))
         playerInventory.main.forEachIndexed { index, _ ->
             val x = 29 + index % 9 * 18
             val y = 85 + if (index < 9) 58 else (index - 9) / 9 * 18
             addSlot(Slot(playerInventory, index, x, y))
         }
         playerInventory.armor.forEachIndexed { index, _ ->
-            addSlot(Slot(playerInventory, index + 36, 7, 67 + (3 - index) * 18))
+            addSlot(ArmorSlot(playerInventory, index + 36, 7, 67 + (3 - index) * 18))
         }
-        addSlot(Slot(playerInventory, 41, 7, 142))
+        addSlot(OffhandSlot(playerInventory, 40, 7, 142))
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
@@ -115,7 +114,7 @@ class EnchantMenuScreenHandler(
         this.sendContentUpdates()
     }
 
-    override fun canUse(player: PlayerEntity) = true
+    override fun canUse(player: PlayerEntity) = inventory.canPlayerUse(player)
 
     override fun close(player: PlayerEntity) {
         super.close(player)
@@ -124,15 +123,16 @@ class EnchantMenuScreenHandler(
 
     override fun transferSlot(player: PlayerEntity, index: Int): ItemStack {
         val slot = slots[index]
-
         if (!slot.hasStack()) return ItemStack.EMPTY
 
         val stack = slot.stack
         val stack2 = stack.copy()
 
         if (index == 0) {
+            // transfer to the first valid slot in the player inventory
             if (!insertItem(stack2, 1, 37, true)) return ItemStack.EMPTY
         } else {
+            // transfer to the enchant menu slot
             if (slots[0].hasStack() || !slots[0].canInsert(stack2)) return ItemStack.EMPTY
 
             val stack3 = stack2.copy()
