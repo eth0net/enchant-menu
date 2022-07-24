@@ -1,4 +1,4 @@
-# Enchant Menu
+# ![Enchant Menu](./assets/icons/long-rect.png)
 
 Enchant Menu adds a simple menu for modifying item enchantments.
 
