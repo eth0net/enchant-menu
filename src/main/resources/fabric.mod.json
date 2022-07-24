@@ -21,11 +21,15 @@
         "adapter": "kotlin",
         "value": "com.github.eth0net.enchantmenu.EnchantMenu"
       }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "com.github.eth0net.enchantmenu.client.EnchantMenuClient"
+      }
     ]
   },
-  "mixins": [
-    "enchantmenu.mixins.json"
-  ],
+  "mixins": [],
   "depends": {
     "fabricloader": ">=0.14.8",
     "fabric": "*",
