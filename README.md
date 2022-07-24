@@ -2,6 +2,8 @@
 
 Enchant Menu adds a simple menu for modifying item enchantments.
 
+[![Download on Modrinth](https://github.com/modrinth/art/raw/main/Branding/Badge/badge-dark__184x72.png)](https://modrinth.com/mod/enchant-menu)
+
 ## Current Features
 - Select enchantments from the list of possible enchantments
 - Select the level of enchantment from 1 to 10
