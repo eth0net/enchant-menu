@@ -138,7 +138,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
-            if (hoverX in 0..137 && hoverY in 0..12) {
+            if (hoverX in 0 until 134 && hoverY in 0 until 12) {
                 drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12)
                 color = 0xFFFF80
             } else if (hasEnchantment) {
