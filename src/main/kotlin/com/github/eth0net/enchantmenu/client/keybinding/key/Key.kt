@@ -1,4 +1,4 @@
-package com.github.eth0net.enchantmenu.client.keybinding.keys
+package com.github.eth0net.enchantmenu.client.keybinding.key
 
 import org.lwjgl.glfw.GLFW
 

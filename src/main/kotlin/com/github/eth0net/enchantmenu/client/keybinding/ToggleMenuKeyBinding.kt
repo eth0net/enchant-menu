@@ -1,6 +1,6 @@
 package com.github.eth0net.enchantmenu.client.keybinding
 
-import com.github.eth0net.enchantmenu.client.keybinding.keys.MenuKey
+import com.github.eth0net.enchantmenu.client.keybinding.key.MenuKey
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil

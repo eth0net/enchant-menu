@@ -38,7 +38,7 @@ class EnchantMenuScreenHandler(
 
     internal val minLevel = 1
     internal val maxLevel = 10
-    private var _level: Int = minLevel
+    internal var level = minLevel
         set(value) {
             field = if (value < minLevel) {
                 minLevel
@@ -48,9 +48,6 @@ class EnchantMenuScreenHandler(
                 value
             }
         }
-
-    internal val level: Int
-        get() = _level
 
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
@@ -109,8 +106,9 @@ class EnchantMenuScreenHandler(
 
     override fun onContentChanged(inventory: Inventory) {
         if (inventory != this.inventory) return
+        enchantments = listOf()
         val stack = inventory.getStack(0)
-        enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
+        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
         this.sendContentUpdates()
     }
 
@@ -165,10 +163,10 @@ class EnchantMenuScreenHandler(
     }
 
     internal fun incrementLevel() {
-        if (level < maxLevel) ++_level
+        if (level < maxLevel) ++level
     }
 
     internal fun decrementLevel() {
-        if (level > minLevel) --_level
+        if (level > minLevel) --level
     }
 }
