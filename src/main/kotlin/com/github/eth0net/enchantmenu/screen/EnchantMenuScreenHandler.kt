@@ -1,6 +1,7 @@
 package com.github.eth0net.enchantmenu.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
+import com.github.eth0net.enchantmenu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
@@ -69,7 +70,7 @@ class EnchantMenuScreenHandler(
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
         if (id < 0 || id >= enchantments.size) {
-            EnchantMenu.LOGGER.error("${player.name} tried to press invalid enchant button $id")
+            Logger.error("${player.name} tried to press invalid enchant button $id")
             return false
         }
 
@@ -153,8 +154,7 @@ class EnchantMenuScreenHandler(
         return stack
     }
 
-    private val ItemStack.acceptableEnchantments: List<Enchantment>
-        get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
+    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
 
     private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
         return EnchantmentHelper.getLevel(enchantment, this)

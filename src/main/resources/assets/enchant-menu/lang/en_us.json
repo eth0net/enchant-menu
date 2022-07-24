@@ -1,5 +1,7 @@
 {
+  "enchant-menu.title": "Enchant Menu",
   "category.enchant-menu.general": "Enchant Menu",
-  "key.enchant-menu.open": "Open Enchant Menu",
-  "enchant-menu.title": "Enchant Menu"
+  "key.enchant-menu.menu": "Toggle Enchant Menu",
+  "key.enchant-menu.increment": "Increment Level",
+  "key.enchant-menu.decrement": "Decrement Level"
 }

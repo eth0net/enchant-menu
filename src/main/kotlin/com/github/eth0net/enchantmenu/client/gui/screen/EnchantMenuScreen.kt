@@ -1,7 +1,12 @@
 package com.github.eth0net.enchantmenu.client.gui.screen
 
-import com.github.eth0net.enchantmenu.EnchantMenu
+import com.github.eth0net.enchantmenu.client.keybinding.DecrementKeyBinding
+import com.github.eth0net.enchantmenu.client.keybinding.IncrementKeyBinding
+import com.github.eth0net.enchantmenu.client.keybinding.MenuKeyBinding
+import com.github.eth0net.enchantmenu.network.channel.DecrementChannel
+import com.github.eth0net.enchantmenu.network.channel.IncrementChannel
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
+import com.github.eth0net.enchantmenu.util.Identifier
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -20,7 +25,6 @@ import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
 import net.minecraft.util.math.Matrix4f
 import net.minecraft.util.math.Vec3f
-import org.lwjgl.glfw.GLFW
 import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
@@ -29,7 +33,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         override fun getDisplayName() = Text.empty()
     }, title) {
 
-    private val texture = EnchantMenu.id("textures/menu.png")
+    private val texture = Identifier("textures/menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
 
@@ -82,8 +86,9 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (keyCode == GLFW.GLFW_KEY_RIGHT_BRACKET) incrementLevel()
-        if (keyCode == GLFW.GLFW_KEY_LEFT_BRACKET) decrementLevel()
+        if (MenuKeyBinding.matchesKey(keyCode, scanCode)) close()
+        if (IncrementKeyBinding.matchesKey(keyCode, scanCode)) incrementLevel()
+        if (DecrementKeyBinding.matchesKey(keyCode, scanCode)) decrementLevel()
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
@@ -168,27 +173,15 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         renderBackground(matrices)
         super.render(matrices, mouseX, mouseY, client!!.tickDelta)
         drawMouseoverTooltip(matrices, mouseX, mouseY)
-
-//        handler.enchantments.run run@{
-//            this.forEachIndexed loop@{ i, enchantment ->
-//                if (!isPointWithinBounds(60, 14 + 19 * i, 108, 17, mouseX.toDouble(), mouseY.toDouble())) return@loop
-//
-//                val nameText = Text.translatable("container.enchant.clue", enchantment.getName(handler.level))
-//                val list = listOf(nameText.formatted(Formatting.WHITE))
-//
-//                renderTooltip(matrices, list, mouseX, mouseY)
-//                return@run
-//            }
-//        }
     }
 
     private fun incrementLevel() {
         handler.incrementLevel()
-        ClientPlayNetworking.send(EnchantMenu.INC_PACKET, PacketByteBufs.empty())
+        ClientPlayNetworking.send(IncrementChannel, PacketByteBufs.empty())
     }
 
     private fun decrementLevel() {
         handler.decrementLevel()
-        ClientPlayNetworking.send(EnchantMenu.DEC_PACKET, PacketByteBufs.empty())
+        ClientPlayNetworking.send(DecrementChannel, PacketByteBufs.empty())
     }
 }
