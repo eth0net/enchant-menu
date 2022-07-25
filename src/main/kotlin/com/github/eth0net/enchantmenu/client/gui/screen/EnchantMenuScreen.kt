@@ -29,7 +29,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         override fun getDisplayName() = Text.empty()
     }, title) {
 
-    private val texture = Identifier("textures/menu.png")
+    private val texture = Identifier("textures/gui/enchant_menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
 
@@ -118,7 +118,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val scrollMarkerX = x + 185
             val scrollMarkerY = y + 19 + (48 * (scrollOffset.toFloat() / maxScrollOffset)).toInt()
             RenderSystem.setShaderTexture(0, texture)
-            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 150, 166, 4, 12)
+            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 134, 205, 4, 12)
         }
 
         // enchantments list, from scroll offset to max rows
@@ -132,7 +132,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val (enchantment, currentLevel) = handler.enchantments[index]
             val hasEnchantment = currentLevel > 0
             val text = enchantment.getName(if (hasEnchantment) currentLevel else handler.level)
-            var color = 6839882
+            var color = 0xFFFF80
 
             RenderSystem.setShaderTexture(0, texture)
 
@@ -140,12 +140,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val hoverY = mouseY - yOffset
             if (hoverX in 0 until 134 && hoverY in 0 until 12) {
                 drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12)
-                color = 0xFFFF80
             } else if (hasEnchantment) {
                 drawTexture(matrices, xOffset, yOffset, 0, 190, 134, 12)
-                color = 0xFFFF80
             } else {
                 drawTexture(matrices, xOffset, yOffset, 0, 166, 134, 12)
+                color = 6839882
             }
 
             textRenderer.drawTrimmed(text, xOffset + 2, yOffset + 2, 130, color)
