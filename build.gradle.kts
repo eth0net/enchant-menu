@@ -5,10 +5,13 @@ val minecraftVersion: String by project
 val yarnMappings: String by project
 val loaderVersion: String by project
 val fabricVersion: String by project
+val fabricVersionId: String by project
 val fabricKotlinVersion: String by project
+val fabricKotlinVersionId: String by project
 val mavenGroup: String by project
 val modId: String by project
 val modVersion: String by project
+val modVersionName: String by project
 val modVersionType: String by project
 
 plugins {
@@ -58,16 +61,16 @@ tasks {
     }
 
     modrinth {
-        debugMode.set(true)
         token.set(System.getenv("MODRINTH_TOKEN"))
         projectId.set(base.archivesName)
+        versionName.set(modVersionName)
         versionType.set(modVersionType)
+        changelog.set(project.file("changelogs/$modVersion.md").readText())
         uploadFile.set(remapJar.get())
         additionalFiles.set(listOf(remapSourcesJar.get()))
-        gameVersions.add(minecraftVersion)
         dependencies {
-            required.project("fabric-api")
-            required.project("fabric-language-kotlin")
+            required.version(fabricVersionId)
+            required.version(fabricKotlinVersionId)
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
