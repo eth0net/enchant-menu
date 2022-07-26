@@ -51,6 +51,10 @@ class EnchantMenuScreenHandler(
 
     internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
 
+    internal var incompatibleUnlocked = false
+    internal var levelUnlocked = false
+    internal var treasureUnlocked = false
+
     init {
         addSlot(EnchantSlot(inventory, 0, 29, 41))
         playerInventory.main.forEachIndexed { index, _ ->
@@ -65,8 +69,8 @@ class EnchantMenuScreenHandler(
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
-        if (id < 0 || id >= enchantments.size) {
-            Logger.error("${player.name} tried to press invalid enchant button $id")
+        if (id !in enchantments.indices) {
+            Logger.error("${player.name} tried to press invalid button $id")
             return false
         }
 
@@ -109,7 +113,7 @@ class EnchantMenuScreenHandler(
         enchantments = listOf()
         val stack = inventory.getStack(0)
         if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
-        this.sendContentUpdates()
+        sendContentUpdates()
     }
 
     override fun canUse(player: PlayerEntity) = inventory.canPlayerUse(player)
@@ -168,5 +172,17 @@ class EnchantMenuScreenHandler(
 
     internal fun decrementLevel() {
         if (level > minLevel) --level
+    }
+
+    internal fun toggleIncompatible() {
+        incompatibleUnlocked = !incompatibleUnlocked
+    }
+
+    internal fun toggleLevel() {
+        levelUnlocked = !levelUnlocked
+    }
+
+    internal fun toggleTreasure() {
+        treasureUnlocked = !treasureUnlocked
     }
 }

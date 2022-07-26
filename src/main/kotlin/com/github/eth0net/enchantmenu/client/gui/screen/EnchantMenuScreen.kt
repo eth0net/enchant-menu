@@ -1,10 +1,7 @@
 package com.github.eth0net.enchantmenu.client.gui.screen
 
-import com.github.eth0net.enchantmenu.client.keybinding.DecrementKeyBinding
-import com.github.eth0net.enchantmenu.client.keybinding.IncrementKeyBinding
-import com.github.eth0net.enchantmenu.client.keybinding.MenuKeyBinding
-import com.github.eth0net.enchantmenu.network.channel.DecrementChannel
-import com.github.eth0net.enchantmenu.network.channel.IncrementChannel
+import com.github.eth0net.enchantmenu.client.keybinding.*
+import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.util.Identifier
 import com.mojang.blaze3d.systems.RenderSystem
@@ -83,8 +80,11 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         if (MenuKeyBinding.matchesKey(keyCode, scanCode)) close()
-        if (IncrementKeyBinding.matchesKey(keyCode, scanCode)) incrementLevel()
-        if (DecrementKeyBinding.matchesKey(keyCode, scanCode)) decrementLevel()
+        if (IncrementLevelKeyBinding.matchesKey(keyCode, scanCode)) onIncrementLevelClick()
+        if (DecrementLevelKeyBinding.matchesKey(keyCode, scanCode)) onDecrementLevelClick()
+        if (ToggleIncompatibleKeyBinding.matchesKey(keyCode, scanCode)) onToggleIncompatibleClick()
+        if (ToggleLevelKeyBinding.matchesKey(keyCode, scanCode)) onToggleLevelClick()
+        if (ToggleTreasureKeyBinding.matchesKey(keyCode, scanCode)) onToggleTreasureClick()
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
@@ -108,10 +108,10 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         clearChildren()
         if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
             x + 38, y + 18, 8, 13, 142, 166, texture
-        ) { incrementLevel() })
+        ) { onIncrementLevelClick() })
         if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
             x + 7, y + 18, 8, 13, 134, 166, texture
-        ) { decrementLevel() })
+        ) { onDecrementLevelClick() })
 
         // scroll marker
         if (canScroll) {
@@ -120,6 +120,17 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             RenderSystem.setShaderTexture(0, texture)
             drawTexture(matrices, scrollMarkerX, scrollMarkerY, 134, 205, 4, 12)
         }
+
+        // limit breaks
+        addDrawableChild(TexturedButtonWidget(
+            x + 152, y + 5, 11, 11, 161, if (handler.incompatibleUnlocked) 177 else 166, texture
+        ) { onToggleIncompatibleClick() })
+        addDrawableChild(TexturedButtonWidget(
+            x + 165, y + 5, 11, 11, 172, if (handler.levelUnlocked) 177 else 166, texture
+        ) { onToggleLevelClick() })
+        addDrawableChild(TexturedButtonWidget(
+            x + 178, y + 5, 11, 11, 183, if (handler.treasureUnlocked) 177 else 166, texture
+        ) { onToggleTreasureClick() })
 
         // enchantments list, from scroll offset to max rows
         for (i in 0 until maxRows) {
@@ -157,13 +168,28 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         drawMouseoverTooltip(matrices, mouseX, mouseY)
     }
 
-    private fun incrementLevel() {
+    private fun onIncrementLevelClick() {
         handler.incrementLevel()
-        ClientPlayNetworking.send(IncrementChannel, PacketByteBufs.empty())
+        ClientPlayNetworking.send(IncrementLevelChannel, PacketByteBufs.empty())
     }
 
-    private fun decrementLevel() {
+    private fun onDecrementLevelClick() {
         handler.decrementLevel()
-        ClientPlayNetworking.send(DecrementChannel, PacketByteBufs.empty())
+        ClientPlayNetworking.send(DecrementLevelChannel, PacketByteBufs.empty())
+    }
+
+    private fun onToggleIncompatibleClick() {
+        handler.toggleIncompatible()
+        ClientPlayNetworking.send(ToggleIncompatibleChannel, PacketByteBufs.empty())
+    }
+
+    private fun onToggleLevelClick() {
+        handler.toggleLevel()
+        ClientPlayNetworking.send(ToggleLevelChannel, PacketByteBufs.empty())
+    }
+
+    private fun onToggleTreasureClick() {
+        handler.toggleTreasure()
+        ClientPlayNetworking.send(ToggleTreasureChannel, PacketByteBufs.empty())
     }
 }
