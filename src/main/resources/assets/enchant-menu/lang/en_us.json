@@ -2,6 +2,9 @@
   "enchant-menu.title": "Enchant Menu",
   "category.enchant-menu.general": "Enchant Menu",
   "key.enchant-menu.menu": "Toggle Enchant Menu",
-  "key.enchant-menu.increment": "Increment Level",
-  "key.enchant-menu.decrement": "Decrement Level"
+  "key.enchant-menu.increment_level": "Increment Level",
+  "key.enchant-menu.decrement_level": "Decrement Level",
+  "key.enchant-menu.toggle_incompatible": "Toggle Incompatible",
+  "key.enchant-menu.toggle_level": "Toggle Level",
+  "key.enchant-menu.toggle_treasure": "Toggle Treasure"
 }
