@@ -56,7 +56,7 @@ class EnchantMenuScreenHandler(
     internal var treasureUnlocked = false
 
     init {
-        addSlot(EnchantSlot(inventory, 0, 29, 41))
+        addSlot(EnchantSlot(inventory, 0, 15, 40))
         playerInventory.main.forEachIndexed { index, _ ->
             val x = 29 + index % 9 * 18
             val y = 85 + if (index < 9) 58 else (index - 9) / 9 * 18

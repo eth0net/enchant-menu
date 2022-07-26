@@ -59,12 +59,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
-        val clickX = mouseX.roundToInt() - (x + 51)
+        val clickX = mouseX.roundToInt() - (x + 44)
 
         for (i in 0 until maxRows) {
             val index = i + scrollOffset
             val clickY = mouseY.roundToInt() - (y + 19 + 12 * i)
-            val inBounds = clickX in 0..133 && clickY in 0..11
+            val inBounds = clickX in 0..140 && clickY in 0..11
             if (!inBounds || !handler.onButtonClick(client!!.player as PlayerEntity, index)) continue
             client!!.interactionManager!!.clickButton(handler.syncId, index)
             return true
@@ -102,15 +102,15 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         // level text
         val level = handler.level.toString()
-        textRenderer.drawTrimmed(Text.literal(level), x + 27 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
+        textRenderer.drawTrimmed(Text.literal(level), x + 23 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
 
         // level change buttons
         clearChildren()
         if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
-            x + 38, y + 18, 8, 13, 142, 166, texture
+            x + 31, y + 18, 8, 13, 149, 166, texture
         ) { onIncrementLevelClick() })
         if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
-            x + 7, y + 18, 8, 13, 134, 166, texture
+            x + 6, y + 18, 8, 13, 141, 166, texture
         ) { onDecrementLevelClick() })
 
         // scroll marker
@@ -118,18 +118,18 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val scrollMarkerX = x + 185
             val scrollMarkerY = y + 19 + (48 * (scrollOffset.toFloat() / maxScrollOffset)).toInt()
             RenderSystem.setShaderTexture(0, texture)
-            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 134, 205, 4, 12)
+            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 141, 205, 4, 12)
         }
 
         // limit breaks
         addDrawableChild(TexturedButtonWidget(
-            x + 152, y + 5, 11, 11, 161, if (handler.incompatibleUnlocked) 177 else 166, texture
+            x + 152, y + 5, 11, 11, 168, if (handler.incompatibleUnlocked) 177 else 166, texture
         ) { onToggleIncompatibleClick() })
         addDrawableChild(TexturedButtonWidget(
-            x + 165, y + 5, 11, 11, 172, if (handler.levelUnlocked) 177 else 166, texture
+            x + 165, y + 5, 11, 11, 179, if (handler.levelUnlocked) 177 else 166, texture
         ) { onToggleLevelClick() })
         addDrawableChild(TexturedButtonWidget(
-            x + 178, y + 5, 11, 11, 183, if (handler.treasureUnlocked) 177 else 166, texture
+            x + 178, y + 5, 11, 11, 190, if (handler.treasureUnlocked) 177 else 166, texture
         ) { onToggleTreasureClick() })
 
         // enchantments list, from scroll offset to max rows
@@ -137,7 +137,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val index = i + scrollOffset
             if (index >= handler.enchantments.size) break
 
-            val xOffset = x + 51
+            val xOffset = x + 44
             val yOffset = y + 19 + 12 * i
 
             val (enchantment, currentLevel, compatible) = handler.enchantments[index]
@@ -150,19 +150,19 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val hoverY = mouseY - yOffset
             if (!compatible && !handler.incompatibleUnlocked && !hasEnchantment) {
                 color = 37373737
-                drawTexture(matrices, xOffset, yOffset, 0, 178, 134, 12)
-            } else if (hoverX in 0 until 134 && hoverY in 0 until 12) {
-                drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 178, 141, 12)
+            } else if (hoverX in 0 until 141 && hoverY in 0 until 12) {
+                drawTexture(matrices, xOffset, yOffset, 0, 202, 141, 12)
             } else if (hasEnchantment) {
-                drawTexture(matrices, xOffset, yOffset, 0, 190, 134, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 190, 141, 12)
             } else {
-                drawTexture(matrices, xOffset, yOffset, 0, 166, 134, 12)
+                drawTexture(matrices, xOffset, yOffset, 0, 166, 141, 12)
                 color = 6839882
             }
 
             val overLimit = handler.level > enchantment.maxLevel && !handler.levelUnlocked
             val lvl = if (hasEnchantment) currentLevel else if (overLimit) enchantment.maxLevel else handler.level
-            textRenderer.drawTrimmed(enchantment.getName(lvl), xOffset + 2, yOffset + 2, 130, color)
+            textRenderer.drawTrimmed(enchantment.getName(lvl), xOffset + 2, yOffset + 2, 137, color)
         }
     }
 
