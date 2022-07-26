@@ -3,7 +3,7 @@
   "id": "enchant-menu",
   "version": "${version}",
   "name": "Enchant Menu",
-  "description": "Adds a menu to select item enchantments, optionally allowing you to surpass the limits of the vanilla enchanting system.",
+  "description": "Enchant Menu adds a simple menu for modifying item enchantments.",
   "authors": [
     "eth0net"
   ],
@@ -33,7 +33,7 @@
   "depends": {
     "fabricloader": ">=0.14.8",
     "fabric": "*",
-    "fabric-language-kotlin": ">=1.8.1+kotlin.1.7.0",
+    "fabric-language-kotlin": ">=1.8.2+kotlin.1.7.10",
     "minecraft": "1.19.x",
     "java": ">=17"
   }

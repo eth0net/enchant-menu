@@ -8,11 +8,12 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 - Select enchantments from the list of possible enchantments
 - Select the level of enchantment from 1 to 10
 - Supports custom enchantments
-
-## Planned Features
 - Toggle to surpass vanilla level limits
 - Toggle to allow incompatible enchantments
 - Toggle to allow treasure-only enchantments
+
+## Planned Features
+- Enchantment search box
 - Configuration of menu features
 
 ## Gallery
