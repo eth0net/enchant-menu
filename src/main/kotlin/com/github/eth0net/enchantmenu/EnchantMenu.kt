@@ -1,8 +1,6 @@
 package com.github.eth0net.enchantmenu
 
-import com.github.eth0net.enchantmenu.network.channel.DecrementChannel
-import com.github.eth0net.enchantmenu.network.channel.IncrementChannel
-import com.github.eth0net.enchantmenu.network.channel.MenuChannel
+import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandlerFactory
 import com.github.eth0net.enchantmenu.util.Identifier
@@ -24,11 +22,20 @@ object EnchantMenu : ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)
         }
-        ServerPlayNetworking.registerGlobalReceiver(IncrementChannel) { _, player, _, _, _ ->
+        ServerPlayNetworking.registerGlobalReceiver(IncrementLevelChannel) { _, player, _, _, _ ->
             (player.currentScreenHandler as? EnchantMenuScreenHandler)?.incrementLevel()
         }
-        ServerPlayNetworking.registerGlobalReceiver(DecrementChannel) { _, player, _, _, _ ->
+        ServerPlayNetworking.registerGlobalReceiver(DecrementLevelChannel) { _, player, _, _, _ ->
             (player.currentScreenHandler as? EnchantMenuScreenHandler)?.decrementLevel()
+        }
+        ServerPlayNetworking.registerGlobalReceiver(ToggleIncompatibleChannel) { _, player, _, _, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.toggleIncompatible()
+        }
+        ServerPlayNetworking.registerGlobalReceiver(ToggleLevelChannel) { _, player, _, _, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.toggleLevel()
+        }
+        ServerPlayNetworking.registerGlobalReceiver(ToggleTreasureChannel) { _, player, _, _, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.toggleTreasure()
         }
 
         Logger.info("EnchantMenu initialized.")

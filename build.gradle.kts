@@ -14,6 +14,9 @@ val modVersion: String by project
 val modVersionName: String by project
 val modVersionType: String by project
 
+val changelogFile = project.file("changelogs/$modVersion.md")
+val changelogText = if (changelogFile.exists()) changelogFile.readText() else "No changelog provided."
+
 plugins {
     id("fabric-loom")
     val kotlinVersion: String by System.getProperties()
@@ -65,13 +68,14 @@ tasks {
         projectId.set(base.archivesName)
         versionName.set(modVersionName)
         versionType.set(modVersionType)
-        changelog.set(project.file("changelogs/$modVersion.md").readText())
+        changelog.set(changelogText)
         uploadFile.set(remapJar.get())
         additionalFiles.set(listOf(remapSourcesJar.get()))
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
         }
+        debugMode.set(true)
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
 }

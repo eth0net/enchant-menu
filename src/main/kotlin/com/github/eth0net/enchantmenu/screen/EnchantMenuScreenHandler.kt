@@ -49,10 +49,14 @@ class EnchantMenuScreenHandler(
             }
         }
 
-    internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
+    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
+
+    internal var incompatibleUnlocked = false
+    internal var levelUnlocked = false
+    internal var treasureUnlocked = false
 
     init {
-        addSlot(EnchantSlot(inventory, 0, 29, 41))
+        addSlot(EnchantSlot(inventory, 0, 15, 40))
         playerInventory.main.forEachIndexed { index, _ ->
             val x = 29 + index % 9 * 18
             val y = 85 + if (index < 9) 58 else (index - 9) / 9 * 18
@@ -65,10 +69,14 @@ class EnchantMenuScreenHandler(
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
-        if (id < 0 || id >= enchantments.size) {
-            Logger.error("${player.name} tried to press invalid enchant button $id")
+        if (id !in enchantments.indices) {
+            Logger.error("${player.name} tried to press invalid button $id")
             return false
         }
+
+        val (enchantment, oldLevel, compatible) = enchantments[id]
+        val hasEnchantment = oldLevel > 0
+        if (!compatible && !incompatibleUnlocked && !hasEnchantment) return false
 
         val oldStack = inventory.getStack(0)
         if (oldStack.isEmpty) return false
@@ -80,11 +88,11 @@ class EnchantMenuScreenHandler(
             inventory.setStack(0, newStack)
         }
 
-        val (enchantment, oldLevel) = enchantments[id]
-        if (oldLevel > 0) {
+        if (hasEnchantment) {
             newStack.removeEnchantment(enchantment)
         } else {
-            newStack.addEnchantment(enchantment, level)
+            val lvl = if (level > enchantment.maxLevel && !levelUnlocked) enchantment.maxLevel else level
+            newStack.addEnchantment(enchantment, lvl)
         }
 
         inventory.markDirty()
@@ -108,8 +116,8 @@ class EnchantMenuScreenHandler(
         if (inventory != this.inventory) return
         enchantments = listOf()
         val stack = inventory.getStack(0)
-        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
-        this.sendContentUpdates()
+        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { stack.enchantmentEntry(it) }
+        sendContentUpdates()
     }
 
     override fun canUse(player: PlayerEntity) = inventory.canPlayerUse(player)
@@ -152,10 +160,22 @@ class EnchantMenuScreenHandler(
         return stack
     }
 
-    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
+    private fun Enchantment.acceptableStack(stack: ItemStack): Boolean {
+        return isAcceptableItem(stack) && (!isTreasure || treasureUnlocked || stack.hasEnchantment(this))
+    }
 
-    private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
-        return EnchantmentHelper.getLevel(enchantment, this)
+    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.acceptableStack(this) }
+
+    private fun ItemStack.enchantmentCompatible(enchantment: Enchantment): Boolean {
+        return EnchantmentHelper.fromNbt(enchantments).all { it.key.canCombine(enchantment) }
+    }
+
+    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
+
+    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = enchantmentLevel(enchantment) > 0
+
+    private fun ItemStack.enchantmentEntry(enchantment: Enchantment): Triple<Enchantment, Int, Boolean> {
+        return Triple(enchantment, enchantmentLevel(enchantment), enchantmentCompatible(enchantment))
     }
 
     private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
@@ -168,5 +188,18 @@ class EnchantMenuScreenHandler(
 
     internal fun decrementLevel() {
         if (level > minLevel) --level
+    }
+
+    internal fun toggleIncompatible() {
+        incompatibleUnlocked = !incompatibleUnlocked
+    }
+
+    internal fun toggleLevel() {
+        levelUnlocked = !levelUnlocked
+    }
+
+    internal fun toggleTreasure() {
+        treasureUnlocked = !treasureUnlocked
+        onContentChanged(inventory)
     }
 }
