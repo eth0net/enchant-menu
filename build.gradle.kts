@@ -75,7 +75,6 @@ tasks {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
         }
-        debugMode.set(true)
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
 }

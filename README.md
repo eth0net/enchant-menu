@@ -2,7 +2,9 @@
 
 Enchant Menu adds a simple menu for modifying item enchantments.
 
-[![Download on Modrinth](https://github.com/modrinth/art/raw/main/Branding/Badge/badge-dark__184x72.png)](https://modrinth.com/mod/enchant-menu)
+[<img alt="Download on Modrinth" height="72" src="https://github.com/modrinth/art/raw/main/Branding/Badge/badge-dark.svg"/>](https://modrinth.com/mod/enchant-menu)
+[<img alt="Requires Fabric API" height="72" src="https://i.imgur.com/bTus4wH.png"/>](https://modrinth.com/mod/fabric-api)
+[<img alt="Requires Fabric Kotlin" height="72" src="https://i.imgur.com/c1DH9VL.png"/>](https://modrinth.com/mod/fabric-language-kotlin)
 
 ## Current Features
 - Select enchantments from the list of possible enchantments
