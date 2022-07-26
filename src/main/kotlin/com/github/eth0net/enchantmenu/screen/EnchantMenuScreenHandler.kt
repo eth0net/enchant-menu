@@ -156,7 +156,7 @@ class EnchantMenuScreenHandler(
         return stack
     }
 
-    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) }
+    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) && (!it.isTreasure || treasureUnlocked) }
 
     private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
         return EnchantmentHelper.getLevel(enchantment, this)
