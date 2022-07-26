@@ -75,7 +75,8 @@ class EnchantMenuScreenHandler(
         }
 
         val (enchantment, oldLevel, compatible) = enchantments[id]
-        if (!compatible && !incompatibleUnlocked) return false
+        val hasEnchantment = oldLevel > 0
+        if (!compatible && !incompatibleUnlocked && !hasEnchantment) return false
 
         val oldStack = inventory.getStack(0)
         if (oldStack.isEmpty) return false
@@ -87,10 +88,11 @@ class EnchantMenuScreenHandler(
             inventory.setStack(0, newStack)
         }
 
-        if (oldLevel > 0) {
+        if (hasEnchantment) {
             newStack.removeEnchantment(enchantment)
         } else {
-            newStack.addEnchantment(enchantment, level)
+            val lvl = if (level > enchantment.maxLevel && !levelUnlocked) enchantment.maxLevel else level
+            newStack.addEnchantment(enchantment, lvl)
         }
 
         inventory.markDirty()
@@ -158,15 +160,19 @@ class EnchantMenuScreenHandler(
         return stack
     }
 
-    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) && (!it.isTreasure || treasureUnlocked) }
+    private fun Enchantment.acceptableStack(stack: ItemStack): Boolean {
+        return isAcceptableItem(stack) && (!isTreasure || treasureUnlocked || stack.hasEnchantment(this))
+    }
+
+    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.acceptableStack(this) }
 
     private fun ItemStack.enchantmentCompatible(enchantment: Enchantment): Boolean {
         return EnchantmentHelper.fromNbt(enchantments).all { it.key.canCombine(enchantment) }
     }
 
-    private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
-        return EnchantmentHelper.getLevel(enchantment, this)
-    }
+    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
+
+    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = enchantmentLevel(enchantment) > 0
 
     private fun ItemStack.enchantmentEntry(enchantment: Enchantment): Triple<Enchantment, Int, Boolean> {
         return Triple(enchantment, enchantmentLevel(enchantment), enchantmentCompatible(enchantment))
@@ -194,5 +200,6 @@ class EnchantMenuScreenHandler(
 
     internal fun toggleTreasure() {
         treasureUnlocked = !treasureUnlocked
+        onContentChanged(inventory)
     }
 }
