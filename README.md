@@ -18,8 +18,10 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 
 ## Gallery
 
-![Item with enchantments](./assets/screenshots/item-with-enchantment.png)
-![Custom enchantments](./assets/screenshots/custom-enchantments.png)
+![Item with enchantments](./assets/screenshots/enchanted-locked.png)
+![Incompatible enchantments unlocked](./assets/screenshots/incompatible-unlocked.png)
+![Level limit unlocked](./assets/screenshots/level-unlocked.png)
+![Treasure enchantments unlocked](./assets/screenshots/treasure-unlocked.png)
 
 ## Credit
 
