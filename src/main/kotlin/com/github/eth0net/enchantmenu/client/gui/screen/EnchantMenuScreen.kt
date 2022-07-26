@@ -140,7 +140,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val xOffset = x + 51
             val yOffset = y + 19 + 12 * i
 
-            val (enchantment, currentLevel) = handler.enchantments[index]
+            val (enchantment, currentLevel, compatible) = handler.enchantments[index]
             val hasEnchantment = currentLevel > 0
             val text = enchantment.getName(if (hasEnchantment) currentLevel else handler.level)
             var color = 0xFFFF80
@@ -149,7 +149,10 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
-            if (hoverX in 0 until 134 && hoverY in 0 until 12) {
+            if (!compatible && !handler.incompatibleUnlocked) {
+                color = 37373737
+                drawTexture(matrices, xOffset, yOffset, 0, 178, 134, 12)
+            } else if (hoverX in 0 until 134 && hoverY in 0 until 12) {
                 drawTexture(matrices, xOffset, yOffset, 0, 202, 134, 12)
             } else if (hasEnchantment) {
                 drawTexture(matrices, xOffset, yOffset, 0, 190, 134, 12)

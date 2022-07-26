@@ -49,7 +49,7 @@ class EnchantMenuScreenHandler(
             }
         }
 
-    internal var enchantments: List<Pair<Enchantment, Int>> = listOf()
+    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
 
     internal var incompatibleUnlocked = false
     internal var levelUnlocked = false
@@ -74,6 +74,9 @@ class EnchantMenuScreenHandler(
             return false
         }
 
+        val (enchantment, oldLevel, compatible) = enchantments[id]
+        if (!compatible && !incompatibleUnlocked) return false
+
         val oldStack = inventory.getStack(0)
         if (oldStack.isEmpty) return false
 
@@ -84,7 +87,6 @@ class EnchantMenuScreenHandler(
             inventory.setStack(0, newStack)
         }
 
-        val (enchantment, oldLevel) = enchantments[id]
         if (oldLevel > 0) {
             newStack.removeEnchantment(enchantment)
         } else {
@@ -112,7 +114,7 @@ class EnchantMenuScreenHandler(
         if (inventory != this.inventory) return
         enchantments = listOf()
         val stack = inventory.getStack(0)
-        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { Pair(it, stack.enchantmentLevel(it)) }
+        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { stack.enchantmentEntry(it) }
         sendContentUpdates()
     }
 
@@ -158,8 +160,16 @@ class EnchantMenuScreenHandler(
 
     private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.isAcceptableItem(this) && (!it.isTreasure || treasureUnlocked) }
 
+    private fun ItemStack.enchantmentCompatible(enchantment: Enchantment): Boolean {
+        return EnchantmentHelper.fromNbt(enchantments).all { it.key.canCombine(enchantment) }
+    }
+
     private fun ItemStack.enchantmentLevel(enchantment: Enchantment): Int {
         return EnchantmentHelper.getLevel(enchantment, this)
+    }
+
+    private fun ItemStack.enchantmentEntry(enchantment: Enchantment): Triple<Enchantment, Int, Boolean> {
+        return Triple(enchantment, enchantmentLevel(enchantment), enchantmentCompatible(enchantment))
     }
 
     private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
