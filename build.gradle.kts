@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
 val javaVersion = JavaVersion.VERSION_17
 val minecraftVersion: String by project
@@ -8,6 +9,8 @@ val fabricVersion: String by project
 val fabricVersionId: String by project
 val fabricKotlinVersion: String by project
 val fabricKotlinVersionId: String by project
+val clothConfigVersion: String by project
+val clothConfigVersionId: String by project
 val mavenGroup: String by project
 val modId: String by project
 val modVersion: String by project
@@ -29,7 +32,9 @@ base { archivesName.set(modId) }
 group = mavenGroup
 version = modVersion
 
-repositories {}
+repositories {
+    maven { url = URI("https://maven.shedaniel.me/") }
+}
 
 dependencies {
     minecraft("com.mojang", "minecraft", minecraftVersion)
@@ -37,6 +42,7 @@ dependencies {
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+    modApi("me.shedaniel.cloth", "cloth-config-fabric", clothConfigVersion) { exclude("net.fabricmc.fabric-api") }
 }
 
 tasks {
@@ -74,6 +80,7 @@ tasks {
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
+            required.version(clothConfigVersionId)
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
