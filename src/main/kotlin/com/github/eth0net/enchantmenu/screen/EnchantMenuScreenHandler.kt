@@ -4,7 +4,6 @@ import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.screen.slot.ArmorSlot
 import com.github.eth0net.enchantmenu.screen.slot.EnchantSlot
 import com.github.eth0net.enchantmenu.screen.slot.OffhandSlot
-import com.github.eth0net.enchantmenu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
@@ -70,7 +69,7 @@ class EnchantMenuScreenHandler(
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
         if (id !in enchantments.indices) {
-            Logger.error("${player.name} tried to press invalid button $id")
+            EnchantMenu.log.error("${player.name} tried to press invalid button $id")
             return false
         }
 

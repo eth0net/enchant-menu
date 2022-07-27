@@ -4,7 +4,6 @@ import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.client.gui.screen.EnchantMenuScreen
 import com.github.eth0net.enchantmenu.client.keybinding.MenuKeyBinding
 import com.github.eth0net.enchantmenu.network.channel.MenuChannel
-import com.github.eth0net.enchantmenu.util.Logger
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
@@ -14,7 +13,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens
 @Suppress("UNUSED")
 object EnchantMenuClient : ClientModInitializer {
     override fun onInitializeClient() {
-        Logger.info("EnchantMenuClient initializing...")
+        EnchantMenu.log.info("EnchantMenuClient initializing...")
 
         HandledScreens.register(EnchantMenu.SCREEN_HANDLER, ::EnchantMenuScreen)
 
@@ -22,6 +21,6 @@ object EnchantMenuClient : ClientModInitializer {
             while (MenuKeyBinding.wasPressed()) ClientPlayNetworking.send(MenuChannel, PacketByteBufs.empty())
         }
 
-        Logger.info("EnchantMenuClient initialized.")
+        EnchantMenu.log.info("EnchantMenuClient initialized.")
     }
 }

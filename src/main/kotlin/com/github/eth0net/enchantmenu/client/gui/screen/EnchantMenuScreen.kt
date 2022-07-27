@@ -1,9 +1,9 @@
 package com.github.eth0net.enchantmenu.client.gui.screen
 
+import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.client.keybinding.*
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
-import com.github.eth0net.enchantmenu.util.Identifier
 import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -26,7 +26,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         override fun getDisplayName() = Text.empty()
     }, title) {
 
-    private val texture = Identifier("textures/gui/enchant_menu.png")
+    private val texture = EnchantMenu.id("textures/gui/enchant_menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
 
