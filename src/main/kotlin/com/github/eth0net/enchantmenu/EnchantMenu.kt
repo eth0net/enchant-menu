@@ -1,5 +1,6 @@
 package com.github.eth0net.enchantmenu
 
+import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandlerFactory
@@ -13,6 +14,8 @@ import org.apache.logging.log4j.LogManager
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
     private const val MOD_ID = "enchant-menu"
+
+    internal val config = EnchantMenuConfig()
 
     internal val log = LogManager.getLogger(MOD_ID)
 

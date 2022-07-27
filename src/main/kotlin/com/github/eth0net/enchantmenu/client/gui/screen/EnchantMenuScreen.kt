@@ -106,10 +106,10 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         // level change buttons
         clearChildren()
-        if (handler.level < handler.maxLevel) addDrawableChild(TexturedButtonWidget(
+        if (handler.level < EnchantMenu.config.maxLevel) addDrawableChild(TexturedButtonWidget(
             x + 31, y + 18, 8, 13, 149, 166, texture
         ) { onIncrementLevelClick() })
-        if (handler.level > handler.minLevel) addDrawableChild(TexturedButtonWidget(
+        if (handler.level > EnchantMenu.config.minLevel) addDrawableChild(TexturedButtonWidget(
             x + 6, y + 18, 8, 13, 141, 166, texture
         ) { onDecrementLevelClick() })
 
@@ -122,13 +122,13 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         }
 
         // limit breaks
-        addDrawableChild(TexturedButtonWidget(
+        if (!EnchantMenu.config.disableIncompatibleUnlock) addDrawableChild(TexturedButtonWidget(
             x + 152, y + 5, 11, 11, 168, if (handler.incompatibleUnlocked) 177 else 166, texture
         ) { onToggleIncompatibleClick() })
-        addDrawableChild(TexturedButtonWidget(
+        if (!EnchantMenu.config.disableLevelUnlock) addDrawableChild(TexturedButtonWidget(
             x + 165, y + 5, 11, 11, 179, if (handler.levelUnlocked) 177 else 166, texture
         ) { onToggleLevelClick() })
-        addDrawableChild(TexturedButtonWidget(
+        if (!EnchantMenu.config.disableTreasureUnlock) addDrawableChild(TexturedButtonWidget(
             x + 178, y + 5, 11, 11, 190, if (handler.treasureUnlocked) 177 else 166, texture
         ) { onToggleTreasureClick() })
 

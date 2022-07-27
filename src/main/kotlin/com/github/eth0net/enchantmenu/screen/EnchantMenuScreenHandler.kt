@@ -35,24 +35,46 @@ class EnchantMenuScreenHandler(
         }
     }
 
-    internal val minLevel = 1
-    internal val maxLevel = 10
-    internal var level = minLevel
+    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
+
+    internal var level = EnchantMenu.config.defaultLevel
         set(value) {
-            field = if (value < minLevel) {
-                minLevel
-            } else if (value > maxLevel) {
-                maxLevel
+            field = if (value < EnchantMenu.config.minLevel) {
+                EnchantMenu.config.minLevel
+            } else if (value > EnchantMenu.config.maxLevel) {
+                EnchantMenu.config.maxLevel
             } else {
                 value
             }
         }
 
-    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
-
-    internal var incompatibleUnlocked = false
-    internal var levelUnlocked = false
-    internal var treasureUnlocked = false
+    internal var incompatibleUnlocked = EnchantMenu.config.defaultIncompatibleUnlocked
+        get() = !EnchantMenu.config.disableIncompatibleUnlock && field
+//        set(value) {
+//            field = if (!EnchantMenu.config.disableLevelLimitBreak) {
+//                value
+//            } else {
+//                false
+//            }
+//        }
+    internal var levelUnlocked = EnchantMenu.config.defaultLevelUnlocked
+        get() = !EnchantMenu.config.disableLevelUnlock && field
+//        set(value) {
+//            field = if (!EnchantMenu.config.disableLevelLimitBreak) {
+//                value
+//            } else {
+//                false
+//            }
+//        }
+    internal var treasureUnlocked = EnchantMenu.config.defaultTreasureUnlocked
+        get() = !EnchantMenu.config.disableTreasureUnlock && field
+//        set(value) {
+//            field = if (!EnchantMenu.config.disableTreasureLimitBreak) {
+//                value
+//            } else {
+//                false
+//            }
+//        }
 
     init {
         addSlot(EnchantSlot(inventory, 0, 15, 40))
@@ -182,11 +204,11 @@ class EnchantMenuScreenHandler(
     }
 
     internal fun incrementLevel() {
-        if (level < maxLevel) ++level
+        if (level < EnchantMenu.config.maxLevel) ++level
     }
 
     internal fun decrementLevel() {
-        if (level > minLevel) --level
+        if (level > EnchantMenu.config.minLevel) --level
     }
 
     internal fun toggleIncompatible() {
