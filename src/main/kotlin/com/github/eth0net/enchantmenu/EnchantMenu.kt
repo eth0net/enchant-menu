@@ -5,11 +5,15 @@ import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandlerFactory
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
+import java.io.BufferedWriter
+import java.io.StringWriter
 
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
@@ -25,6 +29,13 @@ object EnchantMenu : ModInitializer {
         log.info("EnchantMenu initializing...")
 
         EnchantMenuConfig.load()
+
+        ServerPlayConnectionEvents.JOIN.register { net, _, _ ->
+            val writer = StringWriter()
+            EnchantMenuConfig.serialize { BufferedWriter(writer) }
+            val buf = PacketByteBufs.create().writeString(writer.toString())
+            ServerPlayNetworking.send(net.player, ConfigSyncChannel, buf)
+        }
 
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)
