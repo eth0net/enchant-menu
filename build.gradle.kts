@@ -11,8 +11,6 @@ val fabricKotlinVersion: String by project
 val fabricKotlinVersionId: String by project
 val completeConfigVersion: String by project
 val completeConfigVersionId: String by project
-val clothConfigVersion: String by project
-val clothConfigVersionId: String by project
 val mavenGroup: String by project
 val modId: String by project
 val modVersion: String by project
@@ -47,7 +45,6 @@ dependencies {
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
-    modImplementation("com.gitlab.Lortseam.completeconfig", "base", completeConfigVersion)
     modImplementation("com.gitlab.Lortseam.completeconfig", "gui-cloth", completeConfigVersion)
 }
 
@@ -65,7 +62,7 @@ tasks {
 
     processResources {
         inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
+        filesMatching("fabric.mod.json") { expand(mapOf("version" to project.version)) }
     }
 
     java {
@@ -87,7 +84,8 @@ tasks {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
             required.version(completeConfigVersionId)
-            optional.version(clothConfigVersionId)
+            optional.project("cloth-config")
+            optional.project("modmenu")
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
