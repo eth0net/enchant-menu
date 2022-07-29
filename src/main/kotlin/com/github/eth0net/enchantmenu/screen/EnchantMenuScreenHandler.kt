@@ -1,10 +1,10 @@
 package com.github.eth0net.enchantmenu.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
+import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.screen.slot.ArmorSlot
 import com.github.eth0net.enchantmenu.screen.slot.EnchantSlot
 import com.github.eth0net.enchantmenu.screen.slot.OffhandSlot
-import com.github.eth0net.enchantmenu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.player.PlayerEntity
@@ -36,24 +36,27 @@ class EnchantMenuScreenHandler(
         }
     }
 
-    internal val minLevel = 1
-    internal val maxLevel = 10
-    internal var level = minLevel
+    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
+
+    internal var level = EnchantMenuConfig.Levels.default
         set(value) {
-            field = if (value < minLevel) {
-                minLevel
-            } else if (value > maxLevel) {
-                maxLevel
+            field = if (value < EnchantMenuConfig.Levels.minimum) {
+                EnchantMenuConfig.Levels.minimum
+            } else if (value > EnchantMenuConfig.Levels.maximum) {
+                EnchantMenuConfig.Levels.maximum
             } else {
                 value
             }
         }
 
-    internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
+    internal var incompatibleUnlocked = EnchantMenuConfig.AutoLimitBreaks.incompatible
+        get() = EnchantMenuConfig.AllowLimitBreaks.incompatible && field
 
-    internal var incompatibleUnlocked = false
-    internal var levelUnlocked = false
-    internal var treasureUnlocked = false
+    internal var levelUnlocked = EnchantMenuConfig.AutoLimitBreaks.level
+        get() = EnchantMenuConfig.AllowLimitBreaks.level && field
+
+    internal var treasureUnlocked = EnchantMenuConfig.AutoLimitBreaks.treasure
+        get() = EnchantMenuConfig.AllowLimitBreaks.treasure && field
 
     init {
         addSlot(EnchantSlot(inventory, 0, 15, 40))
@@ -70,7 +73,7 @@ class EnchantMenuScreenHandler(
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
         if (id !in enchantments.indices) {
-            Logger.error("${player.name} tried to press invalid button $id")
+            EnchantMenu.log.error("${player.name} tried to press invalid button $id")
             return false
         }
 
@@ -183,11 +186,11 @@ class EnchantMenuScreenHandler(
     }
 
     internal fun incrementLevel() {
-        if (level < maxLevel) ++level
+        if (level < EnchantMenuConfig.Levels.maximum) ++level
     }
 
     internal fun decrementLevel() {
-        if (level > minLevel) --level
+        if (level > EnchantMenuConfig.Levels.minimum) --level
     }
 
     internal fun toggleIncompatible() {

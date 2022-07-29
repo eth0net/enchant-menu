@@ -1,23 +1,41 @@
 package com.github.eth0net.enchantmenu
 
+import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandlerFactory
-import com.github.eth0net.enchantmenu.util.Identifier
-import com.github.eth0net.enchantmenu.util.Logger
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
+import org.apache.logging.log4j.LogManager
+import java.io.BufferedWriter
+import java.io.StringWriter
 
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
+    internal const val MOD_ID = "enchant-menu"
+
+    internal val log = LogManager.getLogger(MOD_ID)
+
     internal val SCREEN_HANDLER = Registry.register(
-        Registry.SCREEN_HANDLER, Identifier("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler)
+        Registry.SCREEN_HANDLER, id("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler)
     )
 
     override fun onInitialize() {
-        Logger.info("EnchantMenu initializing...")
+        log.info("EnchantMenu initializing...")
+
+        EnchantMenuConfig.load()
+
+        ServerPlayConnectionEvents.JOIN.register { net, _, _ ->
+            val writer = StringWriter()
+            EnchantMenuConfig.serialize { BufferedWriter(writer) }
+            val buf = PacketByteBufs.create().writeString(writer.toString())
+            ServerPlayNetworking.send(net.player, ConfigSyncChannel, buf)
+        }
 
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)
@@ -38,6 +56,8 @@ object EnchantMenu : ModInitializer {
             (player.currentScreenHandler as? EnchantMenuScreenHandler)?.toggleTreasure()
         }
 
-        Logger.info("EnchantMenu initialized.")
+        log.info("EnchantMenu initialized.")
     }
+
+    internal fun id(path: String) = Identifier(MOD_ID, path)
 }

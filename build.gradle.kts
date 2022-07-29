@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 
 val javaVersion = JavaVersion.VERSION_17
 val minecraftVersion: String by project
@@ -8,6 +9,8 @@ val fabricVersion: String by project
 val fabricVersionId: String by project
 val fabricKotlinVersion: String by project
 val fabricKotlinVersionId: String by project
+val completeConfigVersion: String by project
+val completeConfigVersionId: String by project
 val mavenGroup: String by project
 val modId: String by project
 val modVersion: String by project
@@ -29,7 +32,12 @@ base { archivesName.set(modId) }
 group = mavenGroup
 version = modVersion
 
-repositories {}
+repositories {
+    maven { url = URI("https://jitpack.io") }
+    maven { url = URI("https://maven.terraformersmc.com/") }
+    maven { url = URI("https://maven.shedaniel.me/") }
+    maven { url = URI("https://maven.siphalor.de/") }
+}
 
 dependencies {
     minecraft("com.mojang", "minecraft", minecraftVersion)
@@ -37,6 +45,7 @@ dependencies {
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
+    modImplementation("com.gitlab.Lortseam.completeconfig", "gui-cloth", completeConfigVersion)
 }
 
 tasks {
@@ -53,7 +62,7 @@ tasks {
 
     processResources {
         inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") { expand(mutableMapOf("version" to project.version)) }
+        filesMatching("fabric.mod.json") { expand(mapOf("version" to project.version)) }
     }
 
     java {
@@ -74,6 +83,9 @@ tasks {
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
+            required.version(completeConfigVersionId)
+            optional.project("cloth-config")
+            optional.project("modmenu")
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
