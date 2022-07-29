@@ -2,6 +2,7 @@ package com.github.eth0net.enchantmenu.client.gui.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.client.keybinding.*
+import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.mojang.blaze3d.systems.RenderSystem
@@ -106,10 +107,10 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         // level change buttons
         clearChildren()
-        if (handler.level < EnchantMenu.config.maxLevel) addDrawableChild(TexturedButtonWidget(
+        if (handler.level < EnchantMenuConfig.Levels.maximum) addDrawableChild(TexturedButtonWidget(
             x + 31, y + 18, 8, 13, 149, 166, texture
         ) { onIncrementLevelClick() })
-        if (handler.level > EnchantMenu.config.minLevel) addDrawableChild(TexturedButtonWidget(
+        if (handler.level > EnchantMenuConfig.Levels.minimum) addDrawableChild(TexturedButtonWidget(
             x + 6, y + 18, 8, 13, 141, 166, texture
         ) { onDecrementLevelClick() })
 
@@ -122,13 +123,13 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         }
 
         // limit breaks
-        if (!EnchantMenu.config.disableIncompatibleUnlock) addDrawableChild(TexturedButtonWidget(
+        if (EnchantMenuConfig.AllowLimitBreaks.incompatible) addDrawableChild(TexturedButtonWidget(
             x + 152, y + 5, 11, 11, 168, if (handler.incompatibleUnlocked) 177 else 166, texture
         ) { onToggleIncompatibleClick() })
-        if (!EnchantMenu.config.disableLevelUnlock) addDrawableChild(TexturedButtonWidget(
+        if (EnchantMenuConfig.AllowLimitBreaks.level) addDrawableChild(TexturedButtonWidget(
             x + 165, y + 5, 11, 11, 179, if (handler.levelUnlocked) 177 else 166, texture
         ) { onToggleLevelClick() })
-        if (!EnchantMenu.config.disableTreasureUnlock) addDrawableChild(TexturedButtonWidget(
+        if (EnchantMenuConfig.AllowLimitBreaks.treasure) addDrawableChild(TexturedButtonWidget(
             x + 178, y + 5, 11, 11, 190, if (handler.treasureUnlocked) 177 else 166, texture
         ) { onToggleTreasureClick() })
 

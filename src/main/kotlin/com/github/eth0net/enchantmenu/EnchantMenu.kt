@@ -13,9 +13,7 @@ import org.apache.logging.log4j.LogManager
 
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
-    private const val MOD_ID = "enchant-menu"
-
-    internal val config = EnchantMenuConfig()
+    internal const val MOD_ID = "enchant-menu"
 
     internal val log = LogManager.getLogger(MOD_ID)
 
@@ -25,6 +23,8 @@ object EnchantMenu : ModInitializer {
 
     override fun onInitialize() {
         log.info("EnchantMenu initializing...")
+
+        EnchantMenuConfig.load()
 
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)

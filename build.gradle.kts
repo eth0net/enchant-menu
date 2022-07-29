@@ -9,6 +9,8 @@ val fabricVersion: String by project
 val fabricVersionId: String by project
 val fabricKotlinVersion: String by project
 val fabricKotlinVersionId: String by project
+val completeConfigVersion: String by project
+val completeConfigVersionId: String by project
 val clothConfigVersion: String by project
 val clothConfigVersionId: String by project
 val mavenGroup: String by project
@@ -33,7 +35,10 @@ group = mavenGroup
 version = modVersion
 
 repositories {
+    maven { url = URI("https://jitpack.io") }
+    maven { url = URI("https://maven.terraformersmc.com/") }
     maven { url = URI("https://maven.shedaniel.me/") }
+    maven { url = URI("https://maven.siphalor.de/") }
 }
 
 dependencies {
@@ -42,7 +47,8 @@ dependencies {
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
-    modApi("me.shedaniel.cloth", "cloth-config-fabric", clothConfigVersion) { exclude("net.fabricmc.fabric-api") }
+    modImplementation("com.gitlab.Lortseam.completeconfig", "base", completeConfigVersion)
+    modImplementation("com.gitlab.Lortseam.completeconfig", "gui-cloth", completeConfigVersion)
 }
 
 tasks {
@@ -80,7 +86,8 @@ tasks {
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
-            required.version(clothConfigVersionId)
+            required.version(completeConfigVersionId)
+            optional.version(clothConfigVersionId)
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
     }
