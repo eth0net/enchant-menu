@@ -38,6 +38,12 @@ class EnchantMenuScreenHandler(
 
     internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
 
+    internal var search = ""
+        set(value) {
+            field = value
+            onContentChanged(inventory)
+        }
+
     internal var level = EnchantMenuConfig.Levels.default
         set(value) {
             field = if (value < EnchantMenuConfig.Levels.minimum) {
