@@ -6,6 +6,12 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 [<img alt="Requires Fabric API" height="72" src="https://i.imgur.com/bTus4wH.png"/>](https://modrinth.com/mod/fabric-api)
 [<img alt="Requires Fabric Kotlin" height="72" src="https://i.imgur.com/c1DH9VL.png"/>](https://modrinth.com/mod/fabric-language-kotlin)
 
+
+## Getting Started
+- Press X while ingame to open the interface
+- Place an enchantable item in and select your enchantments
+- Keys can be changed in Minecraft controls settings
+
 ## Current Features
 - Select enchantments from the list of possible enchantments
 - Select the level of enchantment from 1 to 10
