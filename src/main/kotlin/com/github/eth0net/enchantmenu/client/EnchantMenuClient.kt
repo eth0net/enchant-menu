@@ -2,7 +2,7 @@ package com.github.eth0net.enchantmenu.client
 
 import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.client.gui.screen.EnchantMenuScreen
-import com.github.eth0net.enchantmenu.client.keybinding.MenuKeyBinding
+import com.github.eth0net.enchantmenu.client.input.KeyBindings
 import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.ConfigSyncChannel
 import com.github.eth0net.enchantmenu.network.channel.MenuChannel
@@ -31,10 +31,11 @@ object EnchantMenuClient : ClientModInitializer {
             })
         }
 
+        KeyBindings.register()
         HandledScreens.register(EnchantMenu.SCREEN_HANDLER, ::EnchantMenuScreen)
 
         ClientTickEvents.END_CLIENT_TICK.register {
-            while (MenuKeyBinding.wasPressed()) ClientPlayNetworking.send(MenuChannel, PacketByteBufs.empty())
+            while (KeyBindings.ToggleMenu.wasPressed()) ClientPlayNetworking.send(MenuChannel, PacketByteBufs.empty())
         }
 
         ClientPlayNetworking.registerGlobalReceiver(ConfigSyncChannel) { _, _, buf, _ ->

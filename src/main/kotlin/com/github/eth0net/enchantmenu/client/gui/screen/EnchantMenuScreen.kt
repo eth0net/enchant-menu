@@ -1,7 +1,7 @@
 package com.github.eth0net.enchantmenu.client.gui.screen
 
 import com.github.eth0net.enchantmenu.EnchantMenu
-import com.github.eth0net.enchantmenu.client.keybinding.*
+import com.github.eth0net.enchantmenu.client.input.KeyBindings
 import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
@@ -80,12 +80,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
-        if (MenuKeyBinding.matchesKey(keyCode, scanCode)) close()
-        if (IncrementLevelKeyBinding.matchesKey(keyCode, scanCode)) onIncrementLevelClick()
-        if (DecrementLevelKeyBinding.matchesKey(keyCode, scanCode)) onDecrementLevelClick()
-        if (ToggleIncompatibleKeyBinding.matchesKey(keyCode, scanCode)) onToggleIncompatibleClick()
-        if (ToggleLevelKeyBinding.matchesKey(keyCode, scanCode)) onToggleLevelClick()
-        if (ToggleTreasureKeyBinding.matchesKey(keyCode, scanCode)) onToggleTreasureClick()
+        if (KeyBindings.ToggleMenu.matchesKey(keyCode, scanCode)) close()
+        if (KeyBindings.IncrementLevel.matchesKey(keyCode, scanCode)) onIncrementLevelClick()
+        if (KeyBindings.DecrementLevel.matchesKey(keyCode, scanCode)) onDecrementLevelClick()
+        if (KeyBindings.ToggleIncompatible.matchesKey(keyCode, scanCode)) onToggleIncompatibleClick()
+        if (KeyBindings.ToggleLevel.matchesKey(keyCode, scanCode)) onToggleLevelClick()
+        if (KeyBindings.ToggleTreasure.matchesKey(keyCode, scanCode)) onToggleTreasureClick()
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
