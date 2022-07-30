@@ -13,10 +13,10 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 - Toggle to surpass vanilla level limits
 - Toggle to allow incompatible enchantments
 - Toggle to allow treasure-only enchantments
+- Configuration of menu features
 
 ## Planned Features
 - Enchantment search box
-- Configuration of menu features
 
 ## Gallery
 
