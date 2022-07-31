@@ -12,7 +12,7 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 - Place an enchantable item in and select your enchantments
 - Keys can be changed in Minecraft controls settings
 
-## Current Features
+## Features
 - Select enchantments from the list of possible enchantments
 - Select the level of enchantment from 1 to 10
 - Supports custom enchantments
@@ -20,8 +20,6 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 - Toggle to allow incompatible enchantments
 - Toggle to allow treasure-only enchantments
 - Configuration of menu features
-
-## Planned Features
 - Enchantment search box
 
 ## Gallery

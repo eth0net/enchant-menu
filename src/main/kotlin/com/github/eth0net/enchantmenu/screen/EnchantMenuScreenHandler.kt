@@ -38,6 +38,12 @@ class EnchantMenuScreenHandler(
 
     internal var enchantments: List<Triple<Enchantment, Int, Boolean>> = listOf()
 
+    internal var search = ""
+        set(value) {
+            field = value
+            onContentChanged(inventory)
+        }
+
     internal var level = EnchantMenuConfig.Levels.default
         set(value) {
             field = if (value < EnchantMenuConfig.Levels.minimum) {
@@ -164,7 +170,10 @@ class EnchantMenuScreenHandler(
     }
 
     private fun Enchantment.acceptableStack(stack: ItemStack): Boolean {
-        return isAcceptableItem(stack) && (!isTreasure || treasureUnlocked || stack.hasEnchantment(this))
+        val acceptable = isAcceptableItem(stack)
+        val allowed = !isTreasure || treasureUnlocked || stack.hasEnchantment(this)
+        val inSearch = getName(level).string.lowercase().contains(search.lowercase())
+        return acceptable && allowed && inSearch
     }
 
     private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.acceptableStack(this) }
@@ -187,10 +196,12 @@ class EnchantMenuScreenHandler(
 
     internal fun incrementLevel() {
         if (level < EnchantMenuConfig.Levels.maximum) ++level
+        onContentChanged(inventory)
     }
 
     internal fun decrementLevel() {
         if (level > EnchantMenuConfig.Levels.minimum) --level
+        onContentChanged(inventory)
     }
 
     internal fun toggleIncompatible() {

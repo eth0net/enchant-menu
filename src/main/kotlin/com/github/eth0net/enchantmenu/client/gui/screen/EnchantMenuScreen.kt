@@ -11,6 +11,7 @@ import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.GameRenderer
@@ -19,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
+import org.lwjgl.glfw.GLFW
 import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
@@ -30,6 +32,9 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     private val texture = EnchantMenu.id("textures/gui/enchant_menu.png")
     private var stack = ItemStack.EMPTY
     private var ticks = 0
+
+    private var searchBox: TextFieldWidget? = null
+    private var focusSearchBox = false
 
     private val maxRows = 5
     private val canScroll get() = handler.enchantments.size > maxRows
@@ -62,6 +67,12 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val y = (height - backgroundHeight) / 2
         val clickX = mouseX.roundToInt() - (x + 44)
 
+        focusSearchBox = searchBox?.isMouseOver(mouseX, mouseY) ?: false
+        if (!focusSearchBox) {
+            focused = null
+            searchBox?.setTextFieldFocused(false)
+        }
+
         for (i in 0 until maxRows) {
             val index = i + scrollOffset
             val clickY = mouseY.roundToInt() - (y + 19 + 12 * i)
@@ -80,16 +91,28 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (focusSearchBox && keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            focusSearchBox = false
+            focused = null
+            searchBox?.setTextFieldFocused(false)
+            return true
+        }
+
+        if (focusSearchBox && keyCode != GLFW.GLFW_KEY_BACKSPACE) return false
+
         if (KeyBindings.ToggleMenu.matchesKey(keyCode, scanCode)) close()
         if (KeyBindings.IncrementLevel.matchesKey(keyCode, scanCode)) onIncrementLevelClick()
         if (KeyBindings.DecrementLevel.matchesKey(keyCode, scanCode)) onDecrementLevelClick()
         if (KeyBindings.ToggleIncompatible.matchesKey(keyCode, scanCode)) onToggleIncompatibleClick()
         if (KeyBindings.ToggleLevel.matchesKey(keyCode, scanCode)) onToggleLevelClick()
         if (KeyBindings.ToggleTreasure.matchesKey(keyCode, scanCode)) onToggleTreasureClick()
+
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
     override fun drawBackground(matrices: MatrixStack, delta: Float, mouseX: Int, mouseY: Int) {
+        clearChildren()
+
         DiffuseLighting.disableGuiDepthLighting()
         RenderSystem.setShader(GameRenderer::getPositionTexShader)
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
@@ -106,7 +129,6 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         textRenderer.drawTrimmed(Text.literal(level), x + 23 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
 
         // level change buttons
-        clearChildren()
         if (handler.level < EnchantMenuConfig.Levels.maximum) addDrawableChild(TexturedButtonWidget(
             x + 31, y + 18, 8, 13, 149, 166, texture
         ) { onIncrementLevelClick() })
@@ -132,6 +154,14 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         if (EnchantMenuConfig.AllowLimitBreaks.treasure) addDrawableChild(TexturedButtonWidget(
             x + 178, y + 5, 11, 11, 190, if (handler.treasureUnlocked) 177 else 166, texture
         ) { onToggleTreasureClick() })
+
+        // search box
+        searchBox = TextFieldWidget(textRenderer, x + 78, y + 6, 71, 9, Text.translatable("enchant-menu.title"))
+        searchBox?.setChangedListener { handler.search = it }
+        searchBox?.text = handler.search
+        addSelectableChild(searchBox)
+        addDrawableChild(searchBox)
+        if (focusSearchBox) setInitialFocus(searchBox)
 
         // enchantments list, from scroll offset to max rows
         for (i in 0 until maxRows) {
