@@ -20,6 +20,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
+import org.lwjgl.glfw.GLFW
 import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
@@ -67,7 +68,6 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         val clickX = mouseX.roundToInt() - (x + 44)
 
         focusSearchBox = searchBox?.isMouseOver(mouseX, mouseY) ?: false
-        EnchantMenu.log.info("focusSearchBox: $focusSearchBox")
         if (!focusSearchBox) {
             focused = null
             searchBox?.setTextFieldFocused(false)
@@ -91,12 +91,22 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     }
 
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (focusSearchBox && keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            focusSearchBox = false
+            focused = null
+            searchBox?.setTextFieldFocused(false)
+            return true
+        }
+
+        if (focusSearchBox && keyCode != GLFW.GLFW_KEY_BACKSPACE) return false
+
         if (KeyBindings.ToggleMenu.matchesKey(keyCode, scanCode)) close()
         if (KeyBindings.IncrementLevel.matchesKey(keyCode, scanCode)) onIncrementLevelClick()
         if (KeyBindings.DecrementLevel.matchesKey(keyCode, scanCode)) onDecrementLevelClick()
         if (KeyBindings.ToggleIncompatible.matchesKey(keyCode, scanCode)) onToggleIncompatibleClick()
         if (KeyBindings.ToggleLevel.matchesKey(keyCode, scanCode)) onToggleLevelClick()
         if (KeyBindings.ToggleTreasure.matchesKey(keyCode, scanCode)) onToggleTreasureClick()
+
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
