@@ -40,6 +40,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     private val canScroll get() = handler.enchantments.size > maxRows
     private val maxScrollOffset get() = if (canScroll) handler.enchantments.size - maxRows else 0
     private var scrollOffset = 0
+        get() = if (field > maxScrollOffset) maxScrollOffset else field
         set(value) {
             field = if (value <= 0) {
                 0
