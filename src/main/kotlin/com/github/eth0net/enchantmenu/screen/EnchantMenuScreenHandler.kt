@@ -59,13 +59,13 @@ class EnchantMenuScreenHandler(
     internal var checkPermission = EnchantMenuConfig.checkPermission
         get() = EnchantMenuConfig.checkPermission && field
 
-    internal var incompatibleUnlocked = EnchantMenuConfig.AutoLimitBreaks.incompatible
+    internal var incompatibleUnlocked = EnchantMenuConfig.DefaultLimitBreaks.incompatible
         get() = EnchantMenuConfig.AllowLimitBreaks.incompatible && field
 
-    internal var levelUnlocked = EnchantMenuConfig.AutoLimitBreaks.level
+    internal var levelUnlocked = EnchantMenuConfig.DefaultLimitBreaks.level
         get() = EnchantMenuConfig.AllowLimitBreaks.level && field
 
-    internal var treasureUnlocked = EnchantMenuConfig.AutoLimitBreaks.treasure
+    internal var treasureUnlocked = EnchantMenuConfig.DefaultLimitBreaks.treasure
         get() = EnchantMenuConfig.AllowLimitBreaks.treasure && field
 
     init {
