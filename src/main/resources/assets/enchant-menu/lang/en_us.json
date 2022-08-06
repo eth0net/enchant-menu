@@ -1,6 +1,8 @@
 {
   "enchant-menu.title": "Enchant Menu",
   "category.enchant-menu.general": "Enchant Menu",
+  "config.enchant-menu": "Enchant Menu",
+  "config.enchant-menu.checkPermission": "Check Permission",
   "config.enchant-menu.levels": "Levels",
   "config.enchant-menu.levels.minimum": "Minimum Level",
   "config.enchant-menu.levels.maximum": "Maximum Level",
@@ -13,6 +15,7 @@
   "config.enchant-menu.autoLimitBreaks.incompatible": "Auto-enable Incompatible",
   "config.enchant-menu.autoLimitBreaks.level": "Auto-enable Level",
   "config.enchant-menu.autoLimitBreaks.treasure": "Auto-enable Treasure",
+  "error.enchant-menu.permission": "You don't have permission to enchant items",
   "key.enchant-menu.menu": "Toggle Enchant Menu",
   "key.enchant-menu.increment_level": "Increment Level",
   "key.enchant-menu.decrement_level": "Decrement Level",

@@ -11,6 +11,9 @@ import me.lortseam.completeconfig.api.ConfigGroup
 import me.lortseam.completeconfig.data.Config
 
 object EnchantMenuConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
+    @ConfigEntry
+    var checkPermission = true
+
     @Transitive
     @ConfigEntries(includeAll = true)
     object Levels : ConfigGroup {
