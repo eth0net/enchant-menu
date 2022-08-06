@@ -18,6 +18,7 @@ import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.Slot
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
 import net.minecraft.util.registry.Registry
 
 class EnchantMenuScreenHandler(
@@ -55,13 +56,16 @@ class EnchantMenuScreenHandler(
             }
         }
 
-    internal var incompatibleUnlocked = EnchantMenuConfig.AutoLimitBreaks.incompatible
+    internal var checkPermission = EnchantMenuConfig.checkPermission
+        get() = EnchantMenuConfig.checkPermission && field
+
+    internal var incompatibleUnlocked = EnchantMenuConfig.DefaultLimitBreaks.incompatible
         get() = EnchantMenuConfig.AllowLimitBreaks.incompatible && field
 
-    internal var levelUnlocked = EnchantMenuConfig.AutoLimitBreaks.level
+    internal var levelUnlocked = EnchantMenuConfig.DefaultLimitBreaks.level
         get() = EnchantMenuConfig.AllowLimitBreaks.level && field
 
-    internal var treasureUnlocked = EnchantMenuConfig.AutoLimitBreaks.treasure
+    internal var treasureUnlocked = EnchantMenuConfig.DefaultLimitBreaks.treasure
         get() = EnchantMenuConfig.AllowLimitBreaks.treasure && field
 
     init {
@@ -78,6 +82,11 @@ class EnchantMenuScreenHandler(
     }
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
+        if (!player.canEnchant()) {
+            player.sendMessage(Text.translatable("error.enchant-menu.permission"))
+            return false
+        }
+
         if (id !in enchantments.indices) {
             EnchantMenu.log.error("${player.name} tried to press invalid button $id")
             return false
@@ -168,6 +177,8 @@ class EnchantMenuScreenHandler(
 
         return stack
     }
+
+    private fun PlayerEntity.canEnchant() = !checkPermission || hasPermissionLevel(2)
 
     private fun Enchantment.acceptableStack(stack: ItemStack): Boolean {
         val acceptable = isAcceptableItem(stack)

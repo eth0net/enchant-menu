@@ -11,6 +11,9 @@ import me.lortseam.completeconfig.api.ConfigGroup
 import me.lortseam.completeconfig.data.Config
 
 object EnchantMenuConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
+    @ConfigEntry
+    var checkPermission = true
+
     @Transitive
     @ConfigEntries(includeAll = true)
     object Levels : ConfigGroup {
@@ -55,44 +58,18 @@ object EnchantMenuConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
     }
 
     @Transitive
+    @ConfigEntries(includeAll = true)
     object AllowLimitBreaks : ConfigGroup {
-        @ConfigEntry
         var incompatible = true
-        fun toggleIncompatible() {
-            incompatible = !incompatible
-        }
-
-        @ConfigEntry
         var level = true
-        fun toggleLevel() {
-            level = !level
-        }
-
-        @ConfigEntry
         var treasure = true
-        fun toggleTreasure() {
-            treasure = !treasure
-        }
     }
 
     @Transitive
-    object AutoLimitBreaks : ConfigGroup {
-        @ConfigEntry
+    @ConfigEntries(includeAll = true)
+    object DefaultLimitBreaks : ConfigGroup {
         var incompatible = false
-        fun toggleIncompatible() {
-            incompatible = !incompatible
-        }
-
-        @ConfigEntry
         var level = false
-        fun toggleLevel() {
-            level = !level
-        }
-
-        @ConfigEntry
         var treasure = false
-        fun toggleTreasure() {
-            treasure = !treasure
-        }
     }
 }
