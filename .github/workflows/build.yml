@@ -1,13 +1,5 @@
 name: Build
-on:
-  push:
-    branches-ignore: [ main ]
-    tags:
-      # match semver tags, triggering modrinth releases
-      # could be more restrictive, but this is a good start
-      - v[0-9]+.[0-9]+.[0-9]+*
-  pull_request:
-    branches: [ main ]
+on: push
 jobs:
   build:
     name: Build
