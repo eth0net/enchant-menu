@@ -74,6 +74,7 @@ tasks {
 
     modrinth {
         token.set(System.getenv("MODRINTH_TOKEN"))
+        gameVersions.set(listOf("1.19", "1.19.1", "1.19.2"))
         projectId.set(base.archivesName)
         versionName.set(modVersionName)
         versionType.set(modVersionType)
@@ -83,8 +84,8 @@ tasks {
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
-            required.version(completeConfigVersionId)
             optional.project("cloth-config")
+            optional.version(completeConfigVersionId)
             optional.project("modmenu")
         }
 //        syncBodyFrom.set(rootProject.file("README.md").toString())
