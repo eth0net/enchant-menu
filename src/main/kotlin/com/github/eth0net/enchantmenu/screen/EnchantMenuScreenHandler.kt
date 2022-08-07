@@ -18,7 +18,7 @@ import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.Slot
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
-import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import net.minecraft.util.registry.Registry
 
 class EnchantMenuScreenHandler(
@@ -83,7 +83,7 @@ class EnchantMenuScreenHandler(
 
     override fun onButtonClick(player: PlayerEntity, id: Int): Boolean {
         if (!player.canEnchant()) {
-            player.sendMessage(Text.translatable("error.enchant-menu.permission"))
+            player.sendMessage(TranslatableText("error.enchant-menu.permission"), false)
             return false
         }
 

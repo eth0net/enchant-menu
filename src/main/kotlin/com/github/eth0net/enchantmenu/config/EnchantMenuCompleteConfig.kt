@@ -2,18 +2,18 @@ package com.github.eth0net.enchantmenu.config
 
 import com.github.eth0net.enchantmenu.EnchantMenu
 import me.lortseam.completeconfig.api.ConfigContainer
+import me.lortseam.completeconfig.api.ConfigContainer.Transitive
 import me.lortseam.completeconfig.api.ConfigEntries
 import me.lortseam.completeconfig.api.ConfigEntry
 import me.lortseam.completeconfig.api.ConfigGroup
 import me.lortseam.completeconfig.data.Config
-import org.spongepowered.configurate.CommentedConfigurationNode
 
 object EnchantMenuCompleteConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
     @ConfigEntry
     var checkPermission = true
 
-    @ConfigContainer.Transitive
-    @ConfigEntries(includeAll = true)
+    @Transitive
+    @ConfigEntries
     object Levels : ConfigGroup {
         @ConfigEntry.BoundedInteger(min = 1, max = 100)
         @ConfigEntry.Slider
@@ -55,16 +55,16 @@ object EnchantMenuCompleteConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
             }
     }
 
-    @ConfigContainer.Transitive
-    @ConfigEntries(includeAll = true)
+    @Transitive
+    @ConfigEntries
     object AllowLimitBreaks : ConfigGroup {
         var incompatible = true
         var level = true
         var treasure = true
     }
 
-    @ConfigContainer.Transitive
-    @ConfigEntries(includeAll = true)
+    @Transitive
+    @ConfigEntries
     object DefaultLimitBreaks : ConfigGroup {
         var incompatible = false
         var level = false
@@ -84,9 +84,5 @@ object EnchantMenuCompleteConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
         EnchantMenuConfig.DefaultLimitBreaks.treasure = DefaultLimitBreaks.treasure
     }
 
-    override fun apply(node: CommentedConfigurationNode?) {
-        super.apply(node)
-    }
-
-    override fun onConfigEntryUpdate() = applyConfig()
+    override fun onUpdate() = applyConfig()
 }

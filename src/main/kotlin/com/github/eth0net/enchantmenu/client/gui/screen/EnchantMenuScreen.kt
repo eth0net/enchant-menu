@@ -20,13 +20,14 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import org.lwjgl.glfw.GLFW
 import kotlin.math.roundToInt
 
 @Environment(EnvType.CLIENT)
 class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: PlayerInventory, title: Text) :
     HandledScreen<EnchantMenuScreenHandler>(handler, object : PlayerInventory(playerInventory.player) {
-        override fun getDisplayName() = Text.empty()
+        override fun getDisplayName() = Text.of("")
     }, title) {
 
     private val texture = EnchantMenu.id("textures/gui/enchant_menu.png")
@@ -127,7 +128,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         // level text
         val level = handler.level.toString()
-        textRenderer.drawTrimmed(Text.literal(level), x + 23 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
+        textRenderer.drawTrimmed(Text.of(level), x + 23 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
 
         // level change buttons
         if (handler.level < EnchantMenuConfig.Levels.maximum) addDrawableChild(TexturedButtonWidget(
@@ -157,7 +158,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         ) { onToggleTreasureClick() })
 
         // search box
-        searchBox = TextFieldWidget(textRenderer, x + 78, y + 6, 71, 9, Text.translatable("enchant-menu.title"))
+        searchBox = TextFieldWidget(textRenderer, x + 78, y + 6, 71, 9, TranslatableText("enchant-menu.title"))
         searchBox?.setChangedListener { handler.search = it }
         searchBox?.text = handler.search
         addSelectableChild(searchBox)

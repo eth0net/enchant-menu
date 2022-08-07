@@ -45,7 +45,7 @@ dependencies {
     modImplementation("net.fabricmc", "fabric-loader", loaderVersion)
     modImplementation("net.fabricmc.fabric-api", "fabric-api", fabricVersion)
     modImplementation("net.fabricmc", "fabric-language-kotlin", fabricKotlinVersion)
-    modImplementation("com.gitlab.Lortseam.completeconfig", "gui-cloth", completeConfigVersion)
+    modImplementation("com.gitlab.Lortseam", "completeconfig", completeConfigVersion)
 }
 
 tasks {
@@ -74,7 +74,7 @@ tasks {
 
     modrinth {
         token.set(System.getenv("MODRINTH_TOKEN"))
-        gameVersions.set(listOf("1.19", "1.19.1", "1.19.2"))
+        gameVersions.set(listOf("1.18.2"))
         projectId.set(base.archivesName)
         versionName.set(modVersionName)
         versionType.set(modVersionType)

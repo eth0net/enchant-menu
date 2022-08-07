@@ -33,13 +33,13 @@
   "depends": {
     "fabric": "*",
     "fabric-language-kotlin": ">=1.8.2+kotlin.1.7.10",
-    "fabricloader": ">=0.14.8",
+    "fabricloader": ">=0.14.9",
     "java": ">=17",
-    "minecraft": "1.19.x"
+    "minecraft": "1.18.2"
   },
   "recommends": {
     "cloth-config": "*",
-    "completeconfig-base": "^2.0.0",
+    "completeconfig-base": "^1.4.1",
     "modmenu": "*"
   }
 }
