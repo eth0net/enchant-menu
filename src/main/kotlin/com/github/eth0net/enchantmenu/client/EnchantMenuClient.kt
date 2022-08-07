@@ -24,7 +24,7 @@ object EnchantMenuClient : ClientModInitializer {
     override fun onInitializeClient() {
         EnchantMenu.log.info("EnchantMenuClient initializing...")
 
-        if (FabricLoader.getInstance().isModLoaded("completeconfig")) {
+        if (FabricLoader.getInstance().isModLoaded("completeconfig-base")) {
             if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
                 ConfigScreenBuilder.setMain(EnchantMenu.MOD_ID, ClothConfigScreenBuilder {
                     val editable = MinecraftClient.getInstance().currentServerEntry == null

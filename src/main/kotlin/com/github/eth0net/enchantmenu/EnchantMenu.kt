@@ -29,7 +29,7 @@ object EnchantMenu : ModInitializer {
     override fun onInitialize() {
         log.info("EnchantMenu initializing...")
 
-        if (FabricLoader.getInstance().isModLoaded("completeconfig")) {
+        if (FabricLoader.getInstance().isModLoaded("completeconfig-base")) {
             EnchantMenuCompleteConfig.load()
             EnchantMenuCompleteConfig.applyConfig()
 
