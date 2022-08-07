@@ -31,15 +31,15 @@
   },
   "mixins": [],
   "depends": {
-    "fabricloader": ">=0.14.8",
     "fabric": "*",
     "fabric-language-kotlin": ">=1.8.2+kotlin.1.7.10",
-    "minecraft": "1.19.x",
-    "java": ">=17"
+    "fabricloader": ">=0.14.8",
+    "java": ">=17",
+    "minecraft": "1.19.x"
   },
   "recommends": {
-    "completeconfig-base": "^2.0.0",
     "cloth-config": "*",
+    "completeconfig-base": "^2.0.0",
     "modmenu": "*"
   }
 }
