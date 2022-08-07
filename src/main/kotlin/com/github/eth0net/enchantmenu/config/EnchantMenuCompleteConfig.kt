@@ -6,7 +6,6 @@ import me.lortseam.completeconfig.api.ConfigEntries
 import me.lortseam.completeconfig.api.ConfigEntry
 import me.lortseam.completeconfig.api.ConfigGroup
 import me.lortseam.completeconfig.data.Config
-import org.spongepowered.configurate.CommentedConfigurationNode
 
 object EnchantMenuCompleteConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
     @ConfigEntry
@@ -82,10 +81,6 @@ object EnchantMenuCompleteConfig : Config(EnchantMenu.MOD_ID), ConfigContainer {
         EnchantMenuConfig.DefaultLimitBreaks.incompatible = DefaultLimitBreaks.incompatible
         EnchantMenuConfig.DefaultLimitBreaks.level = DefaultLimitBreaks.level
         EnchantMenuConfig.DefaultLimitBreaks.treasure = DefaultLimitBreaks.treasure
-    }
-
-    override fun apply(node: CommentedConfigurationNode?) {
-        super.apply(node)
     }
 
     override fun onConfigEntryUpdate() = applyConfig()
