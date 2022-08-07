@@ -3,7 +3,7 @@ package com.github.eth0net.enchantmenu.client
 import com.github.eth0net.enchantmenu.EnchantMenu
 import com.github.eth0net.enchantmenu.client.gui.screen.EnchantMenuScreen
 import com.github.eth0net.enchantmenu.client.input.KeyBindings
-import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
+import com.github.eth0net.enchantmenu.config.EnchantMenuCompleteConfig
 import com.github.eth0net.enchantmenu.network.channel.ConfigSyncChannel
 import com.github.eth0net.enchantmenu.network.channel.MenuChannel
 import me.lortseam.completeconfig.gui.ConfigScreenBuilder
@@ -24,11 +24,17 @@ object EnchantMenuClient : ClientModInitializer {
     override fun onInitializeClient() {
         EnchantMenu.log.info("EnchantMenuClient initializing...")
 
-        if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
-            ConfigScreenBuilder.setMain(EnchantMenu.MOD_ID, ClothConfigScreenBuilder {
-                val editable = MinecraftClient.getInstance().currentServerEntry == null
-                ConfigBuilder.create().setEditable(editable)
-            })
+        if (FabricLoader.getInstance().isModLoaded("completeconfig")) {
+            if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
+                ConfigScreenBuilder.setMain(EnchantMenu.MOD_ID, ClothConfigScreenBuilder {
+                    val editable = MinecraftClient.getInstance().currentServerEntry == null
+                    ConfigBuilder.create().setEditable(editable)
+                })
+            }
+
+            ClientPlayNetworking.registerGlobalReceiver(ConfigSyncChannel) { _, _, buf, _ ->
+                EnchantMenuCompleteConfig.deserialize { BufferedReader(StringReader(buf.readString())) }
+            }
         }
 
         KeyBindings.register()
@@ -36,10 +42,6 @@ object EnchantMenuClient : ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register {
             while (KeyBindings.ToggleMenu.wasPressed()) ClientPlayNetworking.send(MenuChannel, PacketByteBufs.empty())
-        }
-
-        ClientPlayNetworking.registerGlobalReceiver(ConfigSyncChannel) { _, _, buf, _ ->
-            EnchantMenuConfig.deserialize { BufferedReader(StringReader(buf.readString())) }
         }
 
         EnchantMenu.log.info("EnchantMenuClient initialized.")

@@ -1,6 +1,6 @@
 package com.github.eth0net.enchantmenu
 
-import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
+import com.github.eth0net.enchantmenu.config.EnchantMenuCompleteConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandlerFactory
@@ -8,6 +8,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
@@ -28,13 +29,16 @@ object EnchantMenu : ModInitializer {
     override fun onInitialize() {
         log.info("EnchantMenu initializing...")
 
-        EnchantMenuConfig.load()
+        if (FabricLoader.getInstance().isModLoaded("completeconfig")) {
+            EnchantMenuCompleteConfig.load()
+            EnchantMenuCompleteConfig.applyConfig()
 
-        ServerPlayConnectionEvents.JOIN.register { net, _, _ ->
-            val writer = StringWriter()
-            EnchantMenuConfig.serialize { BufferedWriter(writer) }
-            val buf = PacketByteBufs.create().writeString(writer.toString())
-            ServerPlayNetworking.send(net.player, ConfigSyncChannel, buf)
+            ServerPlayConnectionEvents.JOIN.register { net, _, _ ->
+                val writer = StringWriter()
+                EnchantMenuCompleteConfig.serialize { BufferedWriter(writer) }
+                val buf = PacketByteBufs.create().writeString(writer.toString())
+                ServerPlayNetworking.send(net.player, ConfigSyncChannel, buf)
+            }
         }
 
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
