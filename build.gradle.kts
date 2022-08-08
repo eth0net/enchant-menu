@@ -74,6 +74,7 @@ tasks {
 
     modrinth {
         token.set(System.getenv("MODRINTH_TOKEN"))
+        loaders.set(listOf("fabric", "quilt"))
         gameVersions.set(listOf("1.19", "1.19.1", "1.19.2"))
         projectId.set(base.archivesName)
         versionName.set(modVersionName)

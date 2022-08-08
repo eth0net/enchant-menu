@@ -44,6 +44,9 @@ object EnchantMenu : ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)
         }
+        ServerPlayNetworking.registerGlobalReceiver(SearchChannel) { _, player, _, buf, _ ->
+            (player.currentScreenHandler as? EnchantMenuScreenHandler)?.search = buf.readString()
+        }
         ServerPlayNetworking.registerGlobalReceiver(IncrementLevelChannel) { _, player, _, _, _ ->
             (player.currentScreenHandler as? EnchantMenuScreenHandler)?.incrementLevel()
         }

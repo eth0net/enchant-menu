@@ -134,7 +134,7 @@ class EnchantMenuScreenHandler(
         if (inventory != this.inventory) return
         enchantments = listOf()
         val stack = inventory.getStack(0)
-        if (!stack.isEmpty) enchantments = stack.acceptableEnchantments.map { stack.enchantmentEntry(it) }
+        if (!stack.isEmpty) enchantments = acceptableEnchantments(stack).map { stack.enchantmentEntry(it) }
         sendContentUpdates()
     }
 
@@ -180,14 +180,11 @@ class EnchantMenuScreenHandler(
 
     private fun PlayerEntity.canEnchant() = !checkPermission || hasPermissionLevel(2)
 
-    private fun Enchantment.acceptableStack(stack: ItemStack): Boolean {
-        val acceptable = isAcceptableItem(stack)
-        val allowed = !isTreasure || treasureUnlocked || stack.hasEnchantment(this)
-        val inSearch = getName(level).string.lowercase().contains(search.lowercase())
-        return acceptable && allowed && inSearch
+    private fun acceptableEnchantments(stack: ItemStack) = Registry.ENCHANTMENT.filter {
+        val allowed = !it.isTreasure || treasureUnlocked || stack.hasEnchantment(it)
+        val inSearch = it.getName(level).string.lowercase().contains(search.lowercase())
+        it.isAcceptableItem(stack) && allowed && inSearch
     }
-
-    private val ItemStack.acceptableEnchantments get() = Registry.ENCHANTMENT.filter { it.acceptableStack(this) }
 
     private fun ItemStack.enchantmentCompatible(enchantment: Enchantment): Boolean {
         return EnchantmentHelper.fromNbt(enchantments).all { it.key.canCombine(enchantment) }
