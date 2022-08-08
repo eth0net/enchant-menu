@@ -7,6 +7,7 @@ val yarnMappings: String by project
 val loaderVersion: String by project
 val fabricVersion: String by project
 val fabricVersionId: String by project
+val qslVersionId: String by project
 val fabricKotlinVersion: String by project
 val fabricKotlinVersionId: String by project
 val completeConfigVersion: String by project
@@ -85,6 +86,7 @@ tasks {
         dependencies {
             required.version(fabricVersionId)
             required.version(fabricKotlinVersionId)
+            required.version(qslVersionId)
             optional.project("cloth-config")
             optional.version(completeConfigVersionId)
             optional.project("modmenu")
