@@ -158,7 +158,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
 
         // search box
         searchBox = TextFieldWidget(textRenderer, x + 78, y + 6, 71, 9, Text.translatable("enchant-menu.title"))
-        searchBox?.setChangedListener { handler.search = it }
+        searchBox?.setChangedListener { onSearchChanged(it) }
         searchBox?.text = handler.search
         addSelectableChild(searchBox)
         addDrawableChild(searchBox)
@@ -227,5 +227,10 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
     private fun onToggleTreasureClick() {
         handler.toggleTreasure()
         ClientPlayNetworking.send(ToggleTreasureChannel, PacketByteBufs.empty())
+    }
+
+    private fun onSearchChanged(search: String) {
+        handler.search = search
+        ClientPlayNetworking.send(SearchChannel, PacketByteBufs.create().writeString(search))
     }
 }
