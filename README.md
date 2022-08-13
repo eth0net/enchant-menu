@@ -1,4 +1,4 @@
-# ![Enchant Menu](./assets/icons/long-fitted.png)
+# ![Enchant Menu](./assets/icons/long-fitted-anim.png)
 
 Enchant Menu adds a simple menu for modifying item enchantments.
 
