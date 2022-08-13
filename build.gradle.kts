@@ -23,8 +23,7 @@ val changelogText = if (changelogFile.exists()) changelogFile.readText() else "N
 
 plugins {
     id("fabric-loom")
-    val kotlinVersion: String by System.getProperties()
-    kotlin("jvm").version(kotlinVersion)
+    kotlin("jvm").version(System.getProperty("kotlinVersion"))
     id("com.modrinth.minotaur").version("2.+")
 }
 
