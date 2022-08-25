@@ -34,3 +34,7 @@ Enchant Menu adds a simple menu for modifying item enchantments.
 
 This mod is based on the enchanting tool included in NEI from the days of Tekkit Classic - Thanks to the original
 creator for the inspiration!
+
+## My mods
+
+[<img alt="Relativity" height="256" src="../../../relativity/blob/1.19/assets/icons/square-anim.png" />](https://github.com/eth0net/relativity)
