@@ -5,7 +5,7 @@
   "name": "Enchant Menu",
   "description": "Enchant Menu adds a simple menu for modifying item enchantments.",
   "authors": [
-    "eth0net and lol.mam"
+    "eth0net", "lol.mam"
   ],
   "contact": {
     "homepage": "https://github.com/eth0net/enchant-menu/",
