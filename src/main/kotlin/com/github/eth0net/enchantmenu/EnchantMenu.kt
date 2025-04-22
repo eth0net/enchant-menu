@@ -8,10 +8,11 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
-import net.fabricmc.loader.api.FabricLoader
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
+import net.minecraft.resource.featuretoggle.FeatureFlags
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.util.Identifier
-import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import java.io.BufferedWriter
 import java.io.StringWriter
@@ -19,28 +20,40 @@ import java.io.StringWriter
 @Suppress("UNUSED")
 object EnchantMenu : ModInitializer {
     internal const val MOD_ID = "enchant-menu"
-
     internal val log = LogManager.getLogger(MOD_ID)
 
-    internal val SCREEN_HANDLER = Registry.register(
-        Registry.SCREEN_HANDLER, id("enchant_menu"), ScreenHandlerType(::EnchantMenuScreenHandler)
+    // Registering the screen handler for Enchant Menu
+    internal val SCREEN_HANDLER: ScreenHandlerType<EnchantMenuScreenHandler> = Registry.register(
+        Registries.SCREEN_HANDLER,
+        id("enchant_menu"),
+        ScreenHandlerType(
+            { syncId, inventory -> EnchantMenuScreenHandler(syncId, inventory) },
+            FeatureFlags.DEFAULT_ENABLED_FEATURES
+        )
     )
 
     override fun onInitialize() {
         log.info("EnchantMenu initializing...")
 
-        if (FabricLoader.getInstance().isModLoaded("completeconfig-base")) {
-            EnchantMenuCompleteConfig.load()
-            EnchantMenuCompleteConfig.applyConfig()
+        // Load and apply configuration if 'completeconfig-base' is present
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("completeconfig-base")) {
+            try {
+                EnchantMenuCompleteConfig.load()
+                EnchantMenuCompleteConfig.applyConfig()
 
-            ServerPlayConnectionEvents.JOIN.register { net, _, _ ->
-                val writer = StringWriter()
-                EnchantMenuCompleteConfig.serialize { BufferedWriter(writer) }
-                val buf = PacketByteBufs.create().writeString(writer.toString())
-                ServerPlayNetworking.send(net.player, ConfigSyncChannel, buf)
+                ServerPlayConnectionEvents.JOIN.register { handler, _, _ ->
+                    val writer = StringWriter()
+                    EnchantMenuCompleteConfig.serialize { BufferedWriter(writer) }
+                    val buf = PacketByteBufs.create()
+                    buf.writeString(writer.toString())
+                    ServerPlayNetworking.send(handler.player, ConfigSyncChannel, buf)
+                }
+            } catch (e: Exception) {
+                log.error("Error loading or applying configuration.", e)
             }
         }
 
+        // Registering networking channels for various menu actions
         ServerPlayNetworking.registerGlobalReceiver(MenuChannel) { _, player, _, _, _ ->
             player.openHandledScreen(EnchantMenuScreenHandlerFactory)
         }
@@ -66,5 +79,5 @@ object EnchantMenu : ModInitializer {
         log.info("EnchantMenu initialized.")
     }
 
-    internal fun id(path: String) = Identifier(MOD_ID, path)
+    internal fun id(path: String): Identifier = Identifier(MOD_ID, path)
 }

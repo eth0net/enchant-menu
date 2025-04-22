@@ -19,10 +19,12 @@ import net.minecraft.screen.slot.Slot
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
-import net.minecraft.util.registry.Registry
+import net.minecraft.registry.Registries
 
 class EnchantMenuScreenHandler(
-    syncId: Int, playerInventory: PlayerInventory, private val context: ScreenHandlerContext
+    syncId: Int,
+    playerInventory: PlayerInventory,
+    private val context: ScreenHandlerContext
 ) : ScreenHandler(EnchantMenu.SCREEN_HANDLER, syncId) {
     constructor(syncId: Int, playerInventory: PlayerInventory) : this(
         syncId, playerInventory, ScreenHandlerContext.EMPTY
@@ -47,13 +49,10 @@ class EnchantMenuScreenHandler(
 
     internal var level = EnchantMenuConfig.Levels.default
         set(value) {
-            field = if (value < EnchantMenuConfig.Levels.minimum) {
-                EnchantMenuConfig.Levels.minimum
-            } else if (value > EnchantMenuConfig.Levels.maximum) {
+            field = value.coerceIn(
+                EnchantMenuConfig.Levels.minimum,
                 EnchantMenuConfig.Levels.maximum
-            } else {
-                value
-            }
+            )
         }
 
     internal var checkPermission = EnchantMenuConfig.checkPermission
@@ -102,12 +101,15 @@ class EnchantMenuScreenHandler(
         var newStack = oldStack
         if (newStack.isOf(Items.BOOK)) {
             newStack = ItemStack(Items.ENCHANTED_BOOK)
-            newStack.nbt = oldStack.nbt?.copy()
+            oldStack.nbt?.let { newStack.nbt = it.copy() }
             inventory.setStack(0, newStack)
         }
 
         if (hasEnchantment) {
-            newStack.removeEnchantment(enchantment)
+            val enchantments = EnchantmentHelper.get(newStack)
+                .filter { (e, _) -> e != enchantment }
+                .toMap()
+            EnchantmentHelper.set(enchantments, newStack)
         } else {
             val lvl = if (level > enchantment.maxLevel && !levelUnlocked) enchantment.maxLevel else level
             newStack.addEnchantment(enchantment, lvl)
@@ -134,73 +136,88 @@ class EnchantMenuScreenHandler(
         if (inventory != this.inventory) return
         enchantments = listOf()
         val stack = inventory.getStack(0)
-        if (!stack.isEmpty) enchantments = acceptableEnchantments(stack).map { stack.enchantmentEntry(it) }
+        if (!stack.isEmpty) {
+            enchantments = acceptableEnchantments(stack).map { enchantment ->
+                Triple(
+                    enchantment,
+                    EnchantmentHelper.getLevel(enchantment, stack),
+                    enchantmentCompatible(stack, enchantment)
+                )
+            }
+        }
         sendContentUpdates()
     }
 
     override fun canUse(player: PlayerEntity) = inventory.canPlayerUse(player)
 
-    override fun close(player: PlayerEntity) {
-        super.close(player)
+    override fun onClosed(player: PlayerEntity) {
+        super.onClosed(player)
         dropInventory(player, inventory)
     }
 
-    override fun transferSlot(player: PlayerEntity, index: Int): ItemStack {
+    override fun quickMove(player: PlayerEntity, index: Int): ItemStack {
         val slot = slots[index]
         if (!slot.hasStack()) return ItemStack.EMPTY
 
         val stack = slot.stack
-        val stack2 = stack.copy()
+        val originalStack = stack.copy()
 
         if (index == 0) {
-            // transfer to the first valid slot in the player inventory
-            if (!insertItem(stack2, 1, 37, true)) return ItemStack.EMPTY
+            if (!insertItem(stack, 1, 37, true)) {
+                return ItemStack.EMPTY
+            }
         } else {
-            // transfer to the enchant menu slot
-            if (slots[0].hasStack() || !slots[0].canInsert(stack2)) return ItemStack.EMPTY
+            if (slots[0].hasStack() || !slots[0].canInsert(stack)) {
+                return ItemStack.EMPTY
+            }
 
-            val stack3 = stack2.copy()
-            stack3.count = 1
-            stack2.decrement(1)
-            slots[0].stack = stack3
+            val singleItem = stack.copy()
+            singleItem.count = 1
+            stack.decrement(1)
+            slots[0].stack = singleItem
         }
 
-        if (stack2.isEmpty) {
+        if (stack.isEmpty) {
             slot.stack = ItemStack.EMPTY
         } else {
             slot.markDirty()
         }
 
-        if (stack2.count == stack.count) return ItemStack.EMPTY
+        if (stack.count == originalStack.count) {
+            return ItemStack.EMPTY
+        }
 
-        slot.onTakeItem(player, stack2)
-
-        return stack
+        slot.onTakeItem(player, stack)
+        return originalStack
     }
 
     private fun PlayerEntity.canEnchant() = !checkPermission || hasPermissionLevel(2)
 
-    private fun acceptableEnchantments(stack: ItemStack) = Registry.ENCHANTMENT.filter {
-        val allowed = !it.isTreasure || treasureUnlocked || stack.hasEnchantment(it)
-        val inSearch = it.getName(level).string.lowercase().contains(search.lowercase())
-        it.isAcceptableItem(stack) && allowed && inSearch
+    private fun acceptableEnchantments(stack: ItemStack): List<Enchantment> {
+        return Registries.ENCHANTMENT
+            .stream()                                 // Stream<Enchantment>
+            .filter { enchantment ->
+                val allowed = !enchantment.isTreasure || treasureUnlocked || stack.hasEnchantment(enchantment)
+                val inSearch = enchantment.getName(level).string
+                    .lowercase()
+                    .contains(search.lowercase())
+                enchantment.isAcceptableItem(stack)
+                        && allowed
+                        && inSearch
+            }
+            .toList()
     }
 
-    private fun ItemStack.enchantmentCompatible(enchantment: Enchantment): Boolean {
-        return EnchantmentHelper.fromNbt(enchantments).all { it.key.canCombine(enchantment) }
+
+    private fun enchantmentCompatible(stack: ItemStack, enchantment: Enchantment): Boolean {
+        return EnchantmentHelper.get(stack).all { (e, _) -> e.canCombine(enchantment) }
     }
 
-    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) = EnchantmentHelper.getLevel(enchantment, this)
+    private fun ItemStack.enchantmentLevel(enchantment: Enchantment) =
+        EnchantmentHelper.getLevel(enchantment, this)
 
-    private fun ItemStack.hasEnchantment(enchantment: Enchantment) = enchantmentLevel(enchantment) > 0
-
-    private fun ItemStack.enchantmentEntry(enchantment: Enchantment): Triple<Enchantment, Int, Boolean> {
-        return Triple(enchantment, enchantmentLevel(enchantment), enchantmentCompatible(enchantment))
-    }
-
-    private fun ItemStack.removeEnchantment(enchantment: Enchantment) {
-        EnchantmentHelper.set(EnchantmentHelper.fromNbt(enchantments).filter { it.key != enchantment }, this)
-    }
+    private fun ItemStack.hasEnchantment(enchantment: Enchantment) =
+        enchantmentLevel(enchantment) > 0
 
     internal fun incrementLevel() {
         if (level < EnchantMenuConfig.Levels.maximum) ++level
