@@ -5,17 +5,15 @@ import com.github.eth0net.enchantmenu.client.input.KeyBindings
 import com.github.eth0net.enchantmenu.config.EnchantMenuConfig
 import com.github.eth0net.enchantmenu.network.channel.*
 import com.github.eth0net.enchantmenu.screen.EnchantMenuScreenHandler
-import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs
+import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.widget.TextFieldWidget
 import net.minecraft.client.gui.widget.TexturedButtonWidget
 import net.minecraft.client.render.DiffuseLighting
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
@@ -71,7 +69,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         focusSearchBox = searchBox?.isMouseOver(mouseX, mouseY) ?: false
         if (!focusSearchBox) {
             focused = null
-            searchBox?.setTextFieldFocused(false)
+            searchBox?.isFocused = false
         }
 
         for (i in 0 until maxRows) {
@@ -95,7 +93,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         if (focusSearchBox && keyCode == GLFW.GLFW_KEY_ESCAPE) {
             focusSearchBox = false
             focused = null
-            searchBox?.setTextFieldFocused(false)
+            searchBox?.isFocused = false
             return true
         }
 
@@ -111,23 +109,20 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
-    override fun drawBackground(matrices: MatrixStack, delta: Float, mouseX: Int, mouseY: Int) {
+    override fun drawBackground(context: DrawContext, delta: Float, mouseX: Int, mouseY: Int) {
         clearChildren()
 
         DiffuseLighting.disableGuiDepthLighting()
-        RenderSystem.setShader(GameRenderer::getPositionTexShader)
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-        RenderSystem.setShaderTexture(0, texture)
         val x = (width - backgroundWidth) / 2
         val y = (height - backgroundHeight) / 2
-        drawTexture(matrices, x, y, 0, 0, backgroundWidth, backgroundHeight)
+        context.drawTexture(texture, x, y, 0, 0, backgroundWidth, backgroundHeight)
         DiffuseLighting.enableGuiDepthLighting()
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
-        zOffset = 0
+        context.matrices.push()
+        context.matrices.translate(0.0, 0.0, 0.0)
 
         // level text
         val level = handler.level.toString()
-        textRenderer.drawTrimmed(Text.literal(level), x + 23 - level.length * 3, y + 21, level.length * 6, 0xFFFFFF)
+        context.drawText(textRenderer, Text.literal(level), x + 23 - level.length * 3, y + 21, 0xFFFFFF, false)
 
         // level change buttons
         if (handler.level < EnchantMenuConfig.Levels.maximum) addDrawableChild(TexturedButtonWidget(
@@ -141,8 +136,7 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
         if (canScroll) {
             val scrollMarkerX = x + 185
             val scrollMarkerY = y + 19 + (48 * (scrollOffset.toFloat() / maxScrollOffset)).toInt()
-            RenderSystem.setShaderTexture(0, texture)
-            drawTexture(matrices, scrollMarkerX, scrollMarkerY, 141, 205, 4, 12)
+            context.drawTexture(texture, scrollMarkerX, scrollMarkerY, 141, 205, 4, 12)
         }
 
         // limit breaks
@@ -176,32 +170,32 @@ class EnchantMenuScreen(handler: EnchantMenuScreenHandler, playerInventory: Play
             val hasEnchantment = currentLevel > 0
             var color = 0xFFFF80
 
-            RenderSystem.setShaderTexture(0, texture)
-
             val hoverX = mouseX - xOffset
             val hoverY = mouseY - yOffset
             if (!compatible && !handler.incompatibleUnlocked && !hasEnchantment) {
                 color = 37373737
-                drawTexture(matrices, xOffset, yOffset, 0, 178, 141, 12)
+                context.drawTexture(texture, xOffset, yOffset, 0, 178, 141, 12)
             } else if (hoverX in 0 until 141 && hoverY in 0 until 12) {
-                drawTexture(matrices, xOffset, yOffset, 0, 202, 141, 12)
+                context.drawTexture(texture, xOffset, yOffset, 0, 202, 141, 12)
             } else if (hasEnchantment) {
-                drawTexture(matrices, xOffset, yOffset, 0, 190, 141, 12)
+                context.drawTexture(texture, xOffset, yOffset, 0, 190, 141, 12)
             } else {
-                drawTexture(matrices, xOffset, yOffset, 0, 166, 141, 12)
+                context.drawTexture(texture, xOffset, yOffset, 0, 166, 141, 12)
                 color = 6839882
             }
 
             val overLimit = handler.level > enchantment.maxLevel && !handler.levelUnlocked
             val lvl = if (hasEnchantment) currentLevel else if (overLimit) enchantment.maxLevel else handler.level
-            textRenderer.drawTrimmed(enchantment.getName(lvl), xOffset + 2, yOffset + 2, 137, color)
+            context.drawText(textRenderer, enchantment.getName(lvl), xOffset + 2, yOffset + 2, color, false)
         }
+
+        context.matrices.pop()
     }
 
-    override fun render(matrices: MatrixStack, mouseX: Int, mouseY: Int, delta: Float) {
-        renderBackground(matrices)
-        super.render(matrices, mouseX, mouseY, client!!.tickDelta)
-        drawMouseoverTooltip(matrices, mouseX, mouseY)
+    override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
+        renderBackground(context)
+        super.render(context, mouseX, mouseY, delta)
+        drawMouseoverTooltip(context, mouseX, mouseY)
     }
 
     private fun onIncrementLevelClick() {
